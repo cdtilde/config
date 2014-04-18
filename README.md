@@ -3,7 +3,7 @@
 1. Clone the git repository:
 
    ```
-    git clone https://github.com/cdtilde/dotfiles.git ~/.dotfiles
+    git clone https://github.com/cdtilde/config.git ~/.dotfiles
     ```
 
 2. Go into .dotfiles and create the symbolic links:

@@ -8,22 +8,16 @@
 
 (setq inhibit-startup-message t)
 (setq inhibit-startup-echo-area-message "")
-
 (setq initial-scratch-message "")
 (defun startup-echo-area-message ()
   (message ""))
 
-;; Ignore all bells!
 (setq ring-bell-function 'ignore)
-
-;; Highlight what will be replaced with M-%
 (setq query-replace-highlight t)
-
 (fset 'yes-or-no-p 'y-or-n-p)
-
-;; When opening a file that is a symbolic link under source control,
-;; don't prompt for confirmation
+(blink-cursor-mode 0)
 (setq vc-follow-symlinks t)
+(savehist-mode 1)
 
 ;; Backup files
 (setq make-backup-files t)
@@ -39,9 +33,11 @@
 (show-paren-mode t)
 (setq show-paren-style 'mixed)
 
+;; OS X options
 (setq mac-option-modifier 'meta) 
 
-;; Set up the fringe, scrollbars and toolbars
+
+
 (if (display-graphic-p)
     (progn
       (fringe-mode 0)
@@ -51,8 +47,11 @@
   (progn
     (menu-bar-mode 0)))
 
-;; Save minibuffer history
-(savehist-mode 1)
+
+
+
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -77,14 +76,26 @@
 ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(add-to-list 'custom-theme-load-path "~/.dotfiles/emacs_libraries/themes")
 
-(defun look-default()  
+(defun cousine-font()  
   (interactive)
   (progn
-    (set-default-font "-*-Cousine-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1")
-     (add-to-list 'default-frame-alist '
-                  (font . "-*-Cousine-normal-normal-normal-*-12-*-*-*-m-0-iso10646-1"))
-     ))
+    (set-default-font "-*-Cousine-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1")
+    (add-to-list 'default-frame-alist '
+                 (font . "-*-Cousine-normal-normal-normal-*-14-*-*-*-m-0-iso10646-1"))
+    ))
+
+
+(defun iawriter()
+  (interactive)
+  (load-theme 'iawriter t))
+
+(defun wombat()
+  (interactive)
+  (load-theme 'wombat2 t))
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -139,7 +150,7 @@
                             (setq c-basic-offset 2)))
 
 (add-hook 'sql-mode-hook (lambda ()
-                            (setq c-basic-offset 2)))
+                           (setq c-basic-offset 2)))
 
 
 
@@ -164,6 +175,41 @@
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;
+;;    MISC
+;;
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defun file-info ()
+  (interactive)
+  (if (not (buffer-file-name))
+      (message "Buffer does not have a file: line %d of %d"
+               (line-number-at-pos)
+               (count-lines (point-min) (point-max)))
+    (progn 
+      (let ((file-attributes (file-attributes (buffer-file-name) 'string)))
+        (let ((size (nth 7 file-attributes)))
+          (message "\"%s\": line %d of %d (%d bytes) %s"
+                   (buffer-file-name)
+                   (line-number-at-pos)
+                   (count-lines (point-min) (point-max))
+                   size
+                   (if (file-writable-p (buffer-file-name)) "Read/Write" "Read Only")))))))
+
+
+(defun enable-whitespace-marking()
+  (interactive)
+  (require 'whitespace)
+  (setq whitespace-style '(face lines-tail))
+  (global-whitespace-mode t))
+
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;
@@ -172,10 +218,14 @@
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(global-set-key (kbd "C-c s m") 'sql-start-mysql)
-(global-set-key (kbd "C-c s l") 'sql-start-local-mysql)
-(global-set-key (kbd "C-c s t") 'sql-start-teradata)
-;;(global-set-key (kbd "C-c c")   'compile)
-(global-set-key  [142607065]		'ns-do-hide-others)         ;; Command-Option-H to hide other apps
-(global-set-key (kbd "<C-s-268632070>") 'mac-toggle-max-window)     ;; C-Command-F for full screen
-(global-set-key (kbd "C-c w")   'flip-windows)
+(global-set-key (kbd "C-c c")           'compile)
+(global-set-key (kbd "C-c f i")         'file-info)
+(global-set-key (kbd "C-c s l")         'sql-start-local-mysql)
+(global-set-key (kbd "C-c s m")         'sql-start-mysql)
+(global-set-key (kbd "C-c s t")         'sql-start-teradata)
+(global-set-key (kbd "C-c t i")         'iawriter)
+(global-set-key (kbd "C-c t w")         'wombat)
+(global-set-key (kbd "C-c w")           'flip-windows)
+
+(global-set-key [142607065]             'ns-do-hide-others)         
+(global-set-key (kbd "<C-s-268632070>") 'mac-toggle-max-window)     

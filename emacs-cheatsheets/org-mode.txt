@@ -1,0 +1,39 @@
+<r> in second line in header = align column right (affects header as well)
+
+M-up/down     = move row up or down
+m-left/right  = move column left or right
+
+M-s-left      = delete current column
+M-s-right     = move current column right and insert a column to the left
+M-s-down      = move current row down and add a row above
+(with C-u reverse direction of insert)
+C-c |         = convert region to table
+C-c C-C       = recalc and realign table
+C-c -         = insert a hline
+C-c ^         = sort the lines in the region
+
+M-x org-table-export = export to tab separated file
+
+Example table:
+
+#+CONSTANTS: pi=3.14
+#+TBLNAME: summary-cost
+| Item           |   | Annual Cost | Monthly Cost |         |
+|                |   |         <r> |          <r> |     <r> |
+|----------------+---+-------------+--------------+---------|
+| Startup Cost   | 1 |         $10 |          $12 |  $1,232 |
+| Something else | 2 |    $232,323 |          $24 | $45,555 |
+| Something      | 2 |      $3,231 |          $24 |      $0 |
+| Final thing    | 3 |      $3,422 |          $36 |      $0 |
+|----------------+---+-------------+--------------+---------|
+| Totals         | 8 |    $238,986 |          $96 |      $0 |
+#+TBLFM: $4=$2*12;C%d::@7$3=vsum(@I..II);C%d::$5=$5;C%d
+
+The total in column 3 is src_emacs-lisp[:var d=summary-cost[8,2]]{d}
+
+Refer to a constant as $pi
+
+Note: C is a custom format specifier. It says that the input may have $ and , in it, and to strip those out, perform the calculation, then add $ and , back in before displaying the results.
+
+
+TODO: enable sorting by $ fields

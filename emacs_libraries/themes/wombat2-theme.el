@@ -54,7 +54,7 @@ are included.")
    `(secondary-selection ((,class (:background "#333366" :foreground "#f6f3e8"))))
    `(isearch ((,class (:background "gold1" :foreground "black"))))
    `(lazy-highlight ((,class (:background "purple1" :foreground "white"))))
-   `(vertical-border ((t (:foreground ,"#242424"))))
+   `(vertical-border ((t (:foreground ,"white"))))
    `(hl-line ((t (:background ,"#e8e8e8"))))
    `(show-paren-match-face ((t (:background ,blue1))))
    `(show-paren-mismatch-face ((t (:background ,red1))))   
@@ -63,7 +63,7 @@ are included.")
                       :box nil))))
    `(mode-line-buffer-id ((t (:foreground ,"#f6f3e8"))))
    `(mode-line-inactive
-     ((t (:foreground ,"#f6f3e8"  :background ,"#222222"
+     ((t (:foreground ,"#555555"  :background ,"#444444"
                       :box nil))))
    `(minibuffer-prompt ((,class (:foreground "#e5786d"))))
    `(escape-glyph ((,class (:foreground "#ddaa6f" :weight bold))))

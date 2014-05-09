@@ -6,3 +6,4 @@ alias 'e=/usr/local/Cellar/emacs/HEAD/bin/emacsclient -n '
 alias mysqladmin=/usr/local/mysql/bin/mysqladmin
 alias mysql_start='sudo /Library/StartupItems/MySQLCOM/MySQLCOM start'
 alias mysql_stop='sudo /Library/StartupItems/MySQLCOM/MySQLCOM stop'
+export CLASSPATH=~/terajdbc4.jar:~/tdgssconfig.jar

@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Org-Mode Cheat Sheet</title>
+<!-- 2014-05-01 Thu 14:20 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Zachrisen" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Org-Mode Cheat Sheet</h1>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Org Documents</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-sec-1-1" class="outline-3">
+<h3 id="sec-1-1"><span class="section-number-3">1.1</span> Character Formatting</h3>
+<div class="outline-text-3" id="text-1-1">
+<ul class="org-ul">
+<li><code>*bold*</code> <b>example</b>
+</li>
+<li><code>/italic/</code> <i>example</i>
+</li>
+<li><code>_underlined_</code> <span class="underline">example</span>
+</li>
+<li><code>~code~</code> <code>example</code>
+</li>
+<li><code>+strike-through+</code> <del>example</del>
+</li>
+</ul>
+
+<p>
+Here's an example of <code>max(int a, int b)</code> code in text.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-2" class="outline-3">
+<h3 id="sec-1-2"><span class="section-number-3">1.2</span> Paragraph Formatting</h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+Some random text here, followed by a quote:
+</p>
+
+<blockquote>
+<p>
+Everything should be made as simple as possible,
+but not any simpler &#x2013; Albert Einstein
+</p>
+</blockquote>
+
+<p>
+The regular text continues here. 
+</p>
+
+<p>
+You can insert a hard paragraph break<br  />
+ with two <i>\</i>\'s at the end of a line.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-3" class="outline-3">
+<h3 id="sec-1-3"><span class="section-number-3">1.3</span> Miscellaneous</h3>
+<div class="outline-text-3" id="text-1-3">
+<ul class="org-ul">
+<li># and a whitespace are comments
+</li>
+<li>5 dashes will be a horizontal rule
+</li>
+<li><code>[&#xa0;]</code> A checkbox here and more details!
+</li>
+<li><code>[X]</code> A checked checkbox here
+</li>
+<li>I have a footnote! <sup><a id="fnr.1" name="fnr.1" class="footref" href="#fn.1">1</a></sup>
+</li>
+<li>Greek characters are written like this: <code>\alpha</code> &alpha; &beta; &gamma;
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Code</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Keybindings</h3>
+<div class="outline-text-3" id="text-2-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">Key</td>
+<td class="left">Function</td>
+</tr>
+
+<tr>
+<td class="left">C-c '</td>
+<td class="left">Edit current code block in separate window</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>
+Source code is included and referenced like this:
+</p>
+
+<pre class="example">
+#+BEGIN_SRC emacs-lisp -n -r
+<span id="coderef-x" class="coderef-off">    (save-excursion (x)</span>
+<span id="coderef-y" class="coderef-off">       (goto-char (point-min))) (y)</span>
+#+END_SRC
+In line [[(x)]] we remember the current position.  [[(y)][Line (y)]]
+jumps to point-min.
+</pre>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><span id="coderef-sc" class="coderef-off"><span class="linenr">1: </span>(save-excursion</span>
+<span id="coderef-jump" class="coderef-off"><span class="linenr">2: </span>   (goto-char (point-min)))</span>
+</pre>
+</div>
+
+<p>
+In line <a href="#coderef-sc"class="coderef" onmouseover="CodeHighlightOn(this, 'coderef-sc');" onmouseout="CodeHighlightOff(this, 'coderef-sc');">1</a> we remember the current position. <a href="#coderef-jump"class="coderef" onmouseover="CodeHighlightOn(this, 'coderef-jump');" onmouseout="CodeHighlightOff(this, 'coderef-jump');">Line 2</a>
+jumps to point-min.
+</p>
+
+<p>
+Options:
+</p>
+<dl class="org-dl">
+<dt> <code>-n</code> </dt><dd>number the lines
+</dd>
+<dt> <code>+n</code> </dt><dd>continue the numbering from the previous snippet
+</dd>
+<dt> <code>-r</code> </dt><dd>don't display the labels in the source code
+</dd>
+</dl>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Tables</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Keybindings</h3>
+<div class="outline-text-3" id="text-3-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">Key</th>
+<th scope="col" class="left">Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">C-c '</td>
+<td class="left">edit all formulas</td>
+</tr>
+
+<tr>
+<td class="left">C-c -</td>
+<td class="left">insert a hline</td>
+</tr>
+
+<tr>
+<td class="left">C-c =</td>
+<td class="left">edit column formula</td>
+</tr>
+
+<tr>
+<td class="left">C-c ?</td>
+<td class="left">get info about current cell</td>
+</tr>
+
+<tr>
+<td class="left">C-c &vert;</td>
+<td class="left">convert region to table</td>
+</tr>
+
+<tr>
+<td class="left">C-c ^</td>
+<td class="left">sort the lines in the region</td>
+</tr>
+
+<tr>
+<td class="left">C-c C-c</td>
+<td class="left">realign table</td>
+</tr>
+
+<tr>
+<td class="left">C-u C-c =</td>
+<td class="left">edit field formula</td>
+</tr>
+
+<tr>
+<td class="left">C-u C-u C-c *</td>
+<td class="left">recalc table</td>
+</tr>
+
+<tr>
+<td class="left">M-left/right</td>
+<td class="left">move column left or right</td>
+</tr>
+
+<tr>
+<td class="left">M-s-down</td>
+<td class="left">move current row down and add a row above</td>
+</tr>
+
+<tr>
+<td class="left">M-s-left</td>
+<td class="left">delete current column</td>
+</tr>
+
+<tr>
+<td class="left">M-s-right</td>
+<td class="left">move current column right and insert a column to the left</td>
+</tr>
+
+<tr>
+<td class="left">M-up/down</td>
+<td class="left">move row up or down</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Miscellaneous</h3>
+<div class="outline-text-3" id="text-3-2">
+<dl class="org-dl">
+<dt> M-x </dt><dd>org-table-export
+</dd>
+<dt> (no term) </dt><dd>Types of formulas:
+<dl class="org-dl">
+<dt> := </dt><dd>field formula 
+</dd>
+<dt> = </dt><dd>column formula
+</dd>
+</dl>
+</dd>
+</dl>
+</div>
+</div>
+
+
+
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> Example Table</h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+Code:
+</p>
+
+<pre class="example">
+#+CONSTANTS: pi=3.14
+#+CAPTION: Very important table with numbers in it
+#+TBLNAME: summary-cost 
+| Item           |   | Annual Cost | Monthly Cost |            |
+|                |   |         &lt;r&gt; |          &lt;r&gt; |      &lt;r10&gt; |
+|----------------+---+-------------+--------------+------------|
+| /              | &lt; |             |            &gt; |            |
+| Startup Cost   | 1 |         $10 |          $12 |     $1,232 |
+| Something else | 2 |    $232,323 |          $24 |    $45,555 |
+| Something      | 2 |      $3,231 |          $24 |         $0 |
+| Final thing    | 3 |      $3,422 |          $36 |         $0 |
+|----------------+---+-------------+--------------+------------|
+| Totals         | 8 |    $238,986 |          $96 |         $0 |
+#+TBLFM: $4=$2*12;C%d::@8$3=vsum(@I..II);C%d::$5=$5;C%d
+</pre>
+
+<p>
+Output:
+</p>
+
+
+<table id="summary-cost" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption class="t-above"><span class="table-number">Table 1:</span> Very important table with numbers in it</caption>
+
+<colgroup>
+<col  class="left" />
+</colgroup>
+
+<colgroup>
+<col  class="right" />
+
+<col  class="right" />
+
+<col  class="right" />
+</colgroup>
+
+<colgroup>
+<col  class="right" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">Item</th>
+<th scope="col" class="right">&#xa0;</th>
+<th scope="col" class="right">Annual Cost</th>
+<th scope="col" class="right">Monthly Cost</th>
+<th scope="col" class="right">&#xa0;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">Startup Cost</td>
+<td class="right">1</td>
+<td class="right">$10</td>
+<td class="right">$12</td>
+<td class="right">$1,232</td>
+</tr>
+
+<tr>
+<td class="left">Something else</td>
+<td class="right">2</td>
+<td class="right">$232,323</td>
+<td class="right">$24</td>
+<td class="right">$45,555</td>
+</tr>
+
+<tr>
+<td class="left">Something</td>
+<td class="right">2</td>
+<td class="right">$3,231</td>
+<td class="right">$24</td>
+<td class="right">$0</td>
+</tr>
+
+<tr>
+<td class="left">Final thing</td>
+<td class="right">3</td>
+<td class="right">$3,422</td>
+<td class="right">$36</td>
+<td class="right">$0</td>
+</tr>
+</tbody>
+<tbody>
+<tr>
+<td class="left">Totals</td>
+<td class="right">8</td>
+<td class="right">$238,986</td>
+<td class="right">$96</td>
+<td class="right">$0</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>
+Notes:
+</p>
+<ul class="org-ul">
+<li>&lt;r10&gt; forces right-align and makes the column 10 characters
+</li>
+<li>/ in first column generates vertical column group separators
+</li>
+<li>Referring to a value in the table, the total in column 3 is <code>$238,986</code>. Code: <code>src_emacs-lisp[:var d=summary-cost[9,2]]{d}</code> 
+</li>
+<li>Constants can be referred to as <code>$pi</code>
+</li>
+<li>C is a custom format specifier. It says that the input may have $ and , in it, and to strip those out, perform the calculation, then add $ and , back in before displaying the results.
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Tables of Content</h2>
+<div class="outline-text-2" id="text-4">
+<div id="list-of-tables">
+<h2>List of Tables</h2>
+<div id="text-list-of-tables">
+<ul>
+<li><a href="#summary-cost"><span class="table-number">Table 1:</span> Very important table with numbers in it</a></li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" name="fn.1" class="footnum" href="#fnr.1">1</a></sup> <p class="footpara">
+This is the text of the footnote!
+</p></div>
+
+
+</div>
+</div></div>
+<div id="postamble" class="status">
+<p class="author">Author: Zachrisen</p>
+<p class="date">Created: 2014-05-01 Thu 14:20</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.4.50.1 (<a href="http://orgmode.org">Org</a> mode 8.2.6)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

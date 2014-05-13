@@ -37,7 +37,6 @@
 (setq mac-option-modifier 'meta) 
 (setq ns-use-native-fullscreen nil)  ;; Don't put Emacs in a separate space
 
-
 (if (display-graphic-p)
     (progn
       (fringe-mode 0)
@@ -96,7 +95,7 @@
   (load-theme 'wombat2 t))
 
 
-
+(wombat)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -105,6 +104,33 @@
 ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defun rotate-windows ()
+  (interactive)
+  (if (= (count-windows) 2)
+      (let* ((this-win-buffer (window-buffer))
+             (next-win-buffer (window-buffer (next-window)))
+             (this-win-edges (window-edges (selected-window)))
+             (next-win-edges (window-edges (next-window)))
+             (this-win-2nd (not (and (<= (car this-win-edges)
+                                         (car next-win-edges))
+                                     (<= (cadr this-win-edges)
+                                         (cadr next-win-edges)))))
+             (splitter
+              (if (= (car this-win-edges)
+                     (car (window-edges (next-window))))
+                  'split-window-horizontally
+                'split-window-vertically)))
+        (delete-other-windows)
+        (let ((first-win (selected-window)))
+          (funcall splitter)
+          (if this-win-2nd (other-window 1))
+          (set-window-buffer (selected-window) this-win-buffer)
+          (set-window-buffer (next-window) next-win-buffer)
+          (select-window first-win)
+          (if this-win-2nd (other-window 1))))))
+
 
 (defun flip-windows ()
   "Rotate your windows"
@@ -560,6 +586,13 @@ $1->    %s\n" orig formula form0 form))
 ))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;
+;;    Cheat Sheets
+;;
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun cheatsheet-open ()
   (interactive)
   (find-file-other-window (concat "~/.dotfiles/emacs-cheatsheets/" (format "%s" major-mode) ".org")))
@@ -583,6 +616,9 @@ $1->    %s\n" orig formula form0 form))
 (global-set-key (kbd "C-c t w")         'wombat)
 (global-set-key (kbd "C-c w")           'flip-windows)
 (global-set-key (kbd "C-c h m")         'cheatsheet-open)
+(global-set-key (kbd "C-x f")           'helm-for-files)
+(global-set-key (kbd "C-c h i")         'helm-imenu)
+(global-set-key (kbd "C-c r")   'rotate-windows)
 
 
 (global-set-key [142607065]             'ns-do-hide-others)         
@@ -596,3 +632,39 @@ $1->    %s\n" orig formula form0 form))
                          ("Marmalade" . "http://marmalade-repo.org/packages/")
                          ))
 (package-initialize)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;
+;;    HELM
+;;
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(require 'helm-config)
+
+(setq helm-idle-delay 0.1)
+(setq helm-input-idle-delay 0.1)
+(setq helm-locate-command (concat "~/.dotfiles/locate-with-mdfind" " %s %s"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;
+;;    Ag
+;;
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;qqq(require 'ag)
+;;(add-to-list 'ag-arguments "--hidden")
+;;(add-to-list 'ag-arguments "--ignore\".cache\"")
+;; (add-to-list 'ag-arguments "--ignore \".emacs_backups\"")
+;; (add-to-list 'ag-arguments "--ignore \".LfCache\"")
+;; (add-to-list 'ag-arguments "--ignore \".Trash\"")
+;; (add-to-list 'ag-arguments "--ignore \"semanticdb\"")
+;; (add-to-list 'ag-arguments "--ignore \".emacs.d/history\"")
+;; (add-to-list 'ag-arguments "--ignore \"*#*\"")
+;; (add-to-list 'ag-arguments "--ignore \".tags\"")
+;; (add-to-list 'ag-arguments "--ignore \"TAGS\"")

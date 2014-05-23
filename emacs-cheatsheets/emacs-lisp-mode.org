@@ -1,0 +1,135 @@
+
+;;; 24.4
+full-screen		f11
+zoom			M-f10
+isearch-forward-symbol-at-point M-s .
+indent-rigidly		C-x TAB
+highlight-symbol-at-point M-s h .
+
+
+desktop-save
+desktop-read
+
+
+-------------
+;;; Movement
+numeric prefifx		C-1, M-1, C-M-1
+prefix 4		C-u
+
+
+;;; Characters
+forward character	C-f
+backward character	C-b
+next line		C-n
+previous line		C-p
+
+
+;; Words, Sentences, Paragraphs
+
+forward-word		M-f
+backward-word		M-b
+
+forward-sentence	M-e
+backward-sentence	M-a
+
+forward-paragraph	C-<down>
+backward-paragraph	C-<up>
+
+forward sexp		C-M-f
+backward sexp		C-M-b
+
+;; Screens
+Top, center, bottom	M-r
+
+;; Windows
+other-window		M-j
+
+;; Indentation
+indent-region		<TAB>
+
+;; Miscellaneous Movement
+back-to-indentation	M-m		;; go to first character 
+goto-line		M-g
+
+;; Scrolling
+Scroll other down	C-M-v
+Scroll other up		C-M-S-v
+
+;;; Killing
+kill-whole-line		C-s-backspace
+kill-word-backwards	M-backspace
+duplicate line 		C-c C-k
+
+
+;;; Customizations
+open new line below	C-o
+open new line above	M-o
+ace-jump		C-j
+
+
+;; Search
+incremental search	C-s
+insert word at point	C-w
+yank   	       		M-y
+search history		M-n, M-p
+
+;; Registers
+Mark			C-x r SPC
+Jump			C-x r j
+  (pause after j to see a list)
+  
+;; Window configuration registers
+Save	  		C-x r w
+Restore			C-x r j
+
+
+;; Occur
+occur			M-s o
+enable follow mode	C-C C-f
+close occur   		q
+
+;; Grepping with Ag
+ag			C-c a
+
+;; Marking (custom bindings)
+mark-defun		C-c m f
+
+
+
+----------------------------------------------------------------------------------------------------
+Annoyances
+----------------------------------------------------------------------------------------------------
+
+;; Moving by words
+* No way to move to the first character of the next word
+
+
+M-f puts point before the start of the next word
+M-b puts point at the first character of the word behind 
+
+The little brown mouse sat on a green log
+
+C-a M-f M-f M-f ^ type = browni (begin typing at the end of the previous word)
+
+C-e M-b M-b                     ^
+
+
+In this example, with the point after "X", M-f puts the point after HELM. There's no command to go to the beginning of the next word. 
+
+And this is my example X
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;
+;;    HELM SWOOP
+;;
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+
+
+;; Duplicating a line
+
+character

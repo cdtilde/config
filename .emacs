@@ -35,7 +35,7 @@
 (setq show-paren-style 'mixed)
 
 ;; OS X options
-(setq mac-option-modifier 'meta) 
+(setq mac-option-modifier 'meta)
 (setq ns-use-native-fullscreen nil)  ;; Don't put Emacs in a separate space
 
 (if (display-graphic-p)
@@ -653,6 +653,7 @@ $1->    %s\n" orig formula form0 form))
 (global-set-key (kbd "C-c w r")         'rotate-windows)
 (global-set-key (kbd "<C-return>")      'open-next-line)
 (global-set-key (kbd "<M-return>")    'open-previous-line)
+(global-set-key (kbd "M-RET")    'open-previous-line)
 (global-set-key "%"		                  'match-paren)               
 (global-set-key [142607065]             'ns-do-hide-others)         
 (global-set-key (kbd "<C-s-268632070>") 'mac-toggle-max-window)
@@ -661,6 +662,8 @@ $1->    %s\n" orig formula form0 form))
                 
 
 (put 'downcase-region 'disabled nil)
+
+
 
 
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
@@ -778,3 +781,5 @@ point reaches the beginning or end of the buffer, stop there."
 ;; remap C-a to `smarter-move-beginning-of-line'
 (global-set-key [remap move-beginning-of-line]
                 'sacha/smarter-move-beginning-of-line)
+
+

@@ -2,6 +2,11 @@
 ln -s ~/.dotfiles/.emacs ~/.emacs
 ln -s ~/.dotfiles/.bash_profile ~/.bash_profile
 ln -s ~/.dotfiles/.bashrc ~/.bashrc
+ln -s ~/.dotfiles/scripts/e ~/e
+ln -s ~/.dotfiles/scripts/egui ~/egui
+ln -s ~/.dotfiles/scripts/er ~/er
+ln -s ~/.dotfiles/scripts/es ~/es
+
 
 echo "[user]">> ~/.dotfiles/.git/config
 echo "    name=cdtilde" >> ~/.dotfiles/.git/config

@@ -6,6 +6,9 @@
 | Key       | Function                                         |
 | C-c C-x \ | Show entities as UTF-8 characters (e.g., \alpha) |
 | <s TAB    | Insert #+BEGIN_SRC .. #+END_SRC template (more)  |
+|           |                                                  |
+|           |                                                  |
+|           |                                                  |
 
 
 ** Character Formatting
@@ -99,6 +102,19 @@ This code snippet will print the code, and then the value returned by evaluating
 The results will be placed here:
 
 #+RESULTS: point-max-block
+
+** Teradata SQL
+
+#+name: my-query
+#+header: :engine teradata
+#+begin_src sql :exports both :results literal
+  select current_timestamp as "Current Time";
+#+end_src
+
+#+RESULTS: my-query
+| Current Time                     |
+|----------------------------------|
+| 2014-06-02 13:35:58.610000+00:00 |
 
 
 

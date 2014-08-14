@@ -29,7 +29,7 @@
 
 (require 'sql)
 
-(defun sql-start-session (script product)
+(defun sql-old-start-session (script product)
   "Connect to a database, open a SQL window and split horizontally.
    ARG is the shell script that will be executed to create the SQL session."
   (setq mybuffername (concat "~/Documents/SQL History/"
@@ -47,9 +47,68 @@
 	 (setq sql-mysql-program script)
 	 (sql-mysql))))
 
+
+(defun sql-start-session (script product)
+  "Connect to a database, open a SQL window and split horizontally.
+   ARG is the shell script that will be executed to create the SQL session."
+  (sql-set-product product)
+  (cond ((string= product "db2")
+	 (setq sql-db2-program script)
+	 (sql-db2))
+	((string= product "sqlite")
+	 (setq sql-sqlite-program script)
+	 (sql-sqlite))
+	((string= product "mysql")
+	 (setq sql-mysql-program script)
+	 (sql-mysql)))
+  (if (delq nil (mapcar (lambda (arg)
+           (cond ((string= (buffer-local-value 'major-mode (get-buffer arg)) "sql-mode")
+                  t)))
+         (buffer-list)))
+      (setq sql-buffer "*SQL*")
+    (save-excursion (switch-to-buffer "*SQL*")
+                    (toggle-truncate-lines 1))
+      (progn
+        (setq mybuffername (concat "~/Documents/SQL History/"
+			     (format-time-string "%Y-%m-%d - %H-%M-%S")
+			     ".sql"))
+        (find-file-other-window mybuffername))))
+
+  ;;(sql-set-sqli-buffer))
+  
+
+
+
+ ;; (if (delq nil (mapcar (lambda (arg)
+ ;;           (cond ((string= (buffer-local-value 'major-mode (get-buffer arg)) "sql-mode")
+ ;;                  t)))
+ ;;         (buffer-list)))
+ ;;     (setq sql-buffer "*SQL*")
+ ;;     ((setq mybuffername (concat "~/Documents/SQL History/"
+ ;;        		     (format-time-string "%Y-%m-%d - %H-%M-%S")
+ ;;        		     ".sql"))
+ ;;      (find-file-other-window mybuffername)))
+
+         
+
+         
+;;           (message "%s %s" (buffer-name arg) (buffer-local-value 'major-mode (get-buffer arg)))) (buffer-list))
+
+;; (mapcar (lambda (arg)
+;;           (message "%s %s" (buffer-name arg) (buffer-local-value 'major-mode (get-buffer arg)))) (buffer-list))
+
+
+;; (loop for buffer in (buffer-list)
+;;         do ( message "%s %s" (buffer-name buffer) (buffer-local-value 'major-mode (get-buffer buffer))))
+
+
+
+
+
 (defun sql-start-teradata ()
     (interactive)
     (sql-start-session "~/.emacs.d/bteq" "db2"))
+
 
 (defun sql-start-mysql ()
     (interactive)
@@ -87,6 +146,11 @@
   (interactive)
   (wrap-text "" " (format '--ZZZ,ZZZ,ZZZ,ZZZ,ZZZ,ZZZ') "))
 
+
+(defun teradata-format-as-percent ()
+"Format the selected item as 10.1%"
+(interactive)
+  (wrap-text "" " (format '--ZZZ,ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.9%') "))
 
 (defun teradata-send-latest-results-to-excel ()
  (interactive)

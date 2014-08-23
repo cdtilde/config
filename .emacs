@@ -769,7 +769,7 @@ This function is called by `org-babel-execute-src-block'."
 (global-set-key (kbd "C-c s c")         'teradata-format-as-currency)
 (global-set-key (kbd "C-c s n")         'teradata-format-as-number)
 (global-set-key (kbd "C-c s p")         'teradata-format-as-percent)
-(global-set-key (kbd "C-c s i")         'helm-sql-info)
+;(global-set-key (kbd "C-c s i")         'helm-sql-info)
 (global-set-key (kbd "C-c s s")         'sql-sort-column)
 (global-set-key (kbd "C-c s v")         'sql-column-calc)
 
@@ -818,7 +818,7 @@ This function is called by `org-babel-execute-src-block'."
 (setq helm-locate-command (concat "~/.dotfiles/locate-with-mdfind" " %s %s"))
 
 (add-to-list 'load-path "~/.emacs.d/sql-info")
-(require 'helm-sql-info)
+;(require 'helm-sql-info)
 
 
 
@@ -846,10 +846,10 @@ This function is called by `org-babel-execute-src-block'."
 ;; (key-chord-define-global "uu" 'undo)
 
 
-(add-to-list 'load-path "~/.emacs.d/sql-info")
-(require 'helm-sql-info)
+;(add-to-list 'load-path "~/.emacs.d/sql-info")
+;(require 'helm-sql-info)
 
-(global-set-key (kbd "C-c q") 'helm-sql-info)
+;(global-set-key (kbd "C-c q") 'helm-sql-info)
 
 ;; (add-hook 'dired-mode-hook (lambda() (
 ;; (defun dired-launch-file ()

@@ -66,8 +66,8 @@
                   t)))
          (buffer-list)))
       (setq sql-buffer "*SQL*")
-    (save-excursion (switch-to-buffer "*SQL*")
-                    (toggle-truncate-lines 1))
+    (switch-to-buffer "*SQL*")
+                    (toggle-truncate-lines 1)
       (progn
         (setq mybuffername (concat "~/Documents/SQL History/"
 			     (format-time-string "%Y-%m-%d - %H-%M-%S")
@@ -121,6 +121,96 @@
 (defun sql-start-sqlite3 ()
     (interactive)
     (sql-start-session "/usr/bin/sqlite3" "sqlite"))
+
+
+
+(defun sql-sort-column-old (&optional reverse-sort)
+  "With point inside a column (between two | delimiters), sort the column using sort-columns"
+  (interactive "P")
+  (setq mycolumn (current-column))
+  (save-excursion 
+    (search-backward "|" nil)
+    (setq column-start (current-column))
+    (forward-char)
+    (search-forward "|" nil)
+    (setq column-end (current-column))
+    (search-forward "BTEQ --" nil)
+    (forward-line -3)
+    (move-to-column column-end)
+    (setq end (point))
+    (search-backward-regexp "^$" nil)
+    (forward-line 2)
+    (move-to-column column-start)
+    (setq beg (point))
+    (sort-columns reverse-sort beg end))
+  (move-to-column mycolumn))
+
+
+(defun sql-sort-column (&optional reverse-sort)
+  "With point inside a column (between two | delimiters), sort the column using sort-columns"
+  (interactive "P")
+  (setq mycolumn (current-column))
+  (save-excursion 
+    (setq pos (mark-current-column))
+    (sort-columns reverse-sort (car pos) (cadr pos)))
+    (move-to-column mycolumn))
+
+(defun make-number (n)
+      "Turn a string into a number, being tolerant of commas and even other 
+       'junk'.
+    When I started programming, my numeric input routines translated l 
+    (lowercase ell) into 'one', as many users had learnt their
+      keyboarding on manual typewriters which typically lacked 
+      a separate key for the digit 1. Am I old, or what?"
+    (while (string-match "[^-0-9.]" n)
+      (setq n (replace-match "" nil nil n)))
+      (string-to-number n))
+
+(defun sql-column-calc ()
+       "Add all the lines in the region-rectangle and put the result in the 
+        kill ring."
+       (interactive)
+       (setq pos (mark-current-column))
+       (let ((sum 0) (max most-negative-fixnum) (min most-positive-fixnum) (count 0))
+         
+         (mapc (lambda (line)
+                 (let ((number (make-number line)))
+                       (setq sum (+ sum number))
+                       (if (> number max)
+                           (setq max number))
+                       (if (< number min)
+                           (setq min number))
+                       (setq count (+ count 1))))               
+               (extract-rectangle (car pos) (cadr pos)))
+         (kill-new (number-to-string sum))
+         (message "Sum: %s, Min: %s, Max: %s, Avg: %s, Count: %s" sum min max (/ sum count) count)))
+
+    
+(defun mark-current-column ()
+  (interactive)
+  (save-excursion 
+  ; Find the left boundary of the column I'm in
+  (search-backward "|" nil)
+  (forward-char)
+  (setq column-start (current-column))
+  ; Find the right boundary of the column
+  (search-forward "|" nil)
+  (backward-char)
+  (setq column-end (current-column))
+  ; Find the bottom of the table
+  (search-forward "BTEQ --" nil)
+  (forward-line -3)
+  (move-to-column column-end)
+  (setq end (point))
+  ; Find the top of the column (1 line below the header)
+  (search-backward-regexp "^$" nil)
+  (forward-line 2)
+  (move-to-column column-start)
+  (setq beg (point))
+  (setq pos (list beg end))
+  (list beg end)))
+  
+    
 
 
 

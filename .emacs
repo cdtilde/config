@@ -12,7 +12,7 @@
 (setq initial-scratch-message "")
 (defun startup-echo-area-message ()
   (message ""))
-
+ 
 (setq ring-bell-function 'ignore)
 (setq query-replace-highlight t)
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -38,19 +38,23 @@
 (setq mac-option-modifier 'meta)
 (setq ns-use-native-fullscreen nil)  ;; Don't put Emacs in a separate space
 
-(if (display-graphic-p)
-    (progn
-      (fringe-mode 0)
-      (tool-bar-mode 0)
-      (scroll-bar-mode 0)
-      (menu-bar-mode 1))
-  (progn
-    (tool-bar-mode 0)
-    (scroll-bar-mode 0)
-    (fringe-mode 0)
-    (menu-bar-mode 0)))
+;; (if (display-graphic-p)
+;;     (progn
+;;       (fringe-mode 0)
+;;       (tool-bar-mode 0)
+;;       (scroll-bar-mode 0)
+;;       (menu-bar-mode 1))
+;;   (progn
+;;     (tool-bar-mode 0)
+;;     (scroll-bar-mode 0)
+;;     (fringe-mode 0)
+;;     (menu-bar-mode 0)))
 
 
+(tool-bar-mode 0)
+(scroll-bar-mode 0)
+(fringe-mode 0)
+(menu-bar-mode 0)
 
 
 
@@ -69,6 +73,7 @@
 
 (add-to-list 'load-path "~/.dotfiles/emacs_libraries/sql-tools")
 (require 'sql-tools)
+
 
 
 
@@ -180,7 +185,7 @@
                             (setq c-basic-offset 2)))
 
 (add-hook 'sql-mode-hook (lambda ()
-                           (setq c-basic-offset 2)))
+                           (setq c-basic-offset 2)                           ))
 
 
 
@@ -194,8 +199,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Turn on horizontal scrolling with mouse wheel
-(global-set-key [wheel-right] 'scroll-left)
-(global-set-key [wheel-left]  'scroll-right)
+;(global-set-key [wheel-right] 'scroll-left)
+;(global-set-key [wheel-left]  'scroll-right)
+
+(global-set-key (kbd "<wheel-right>")  (lambda ()(interactive) (scroll-left 2)))
+(global-set-key (kbd "<wheel-left>")  (lambda ()(interactive) (scroll-right 2)))
 
 (put 'scroll-left 'disabled nil)
 
@@ -325,6 +333,7 @@ This is particularly useful under Mac OSX, where GUI apps are not started from a
   (setq arg (replace-regexp-in-string "," "" arg)))    
 
 (add-hook 'org-mode-hook (lambda ()
+                           (progn
 
                            ;; Modified version to allow $ signs and thousands separators in column values
                            (defun org-table-eval-formula (&optional arg equation
@@ -612,7 +621,118 @@ $1->    %s\n" orig formula form0 form))
                                  (and down (org-table-maybe-recalculate-line))
                                  (or suppress-align (and org-table-may-need-update
                                                          (org-table-align))))))
-                           ))
+                           )
+
+
+(defun org-babel-execute:sql (body params)
+  "Execute a block of Sql code with Babel.
+This function is called by `org-babel-execute-src-block'."
+  (let* ((result-params (cdr (assoc :result-params params)))
+         (cmdline (cdr (assoc :cmdline params)))
+         (dbhost (cdr (assoc :dbhost params)))
+         (dbuser (cdr (assoc :dbuser params)))
+         (dbpassword (cdr (assoc :dbpassword params)))
+         (database (cdr (assoc :database params)))
+         (engine (cdr (assoc :engine params)))
+         (colnames-p (not (equal "no" (cdr (assoc :colnames params)))))
+         (in-file (org-babel-temp-file "sql-in-"))
+         (out-file (or (cdr (assoc :out-file params))
+                       (org-babel-temp-file "sql-out-")))
+	 (header-delim "")
+         (command (case (intern engine)
+                    ('dbi (format "dbish --batch %s < %s | sed '%s' > %s"
+				  (or cmdline "")
+				  (org-babel-process-file-name in-file)
+				  "/^+/d;s/^\|//;s/(NULL)/ /g;$d"
+				  (org-babel-process-file-name out-file)))
+                    ('monetdb (format "mclient -f tab %s < %s > %s"
+                                      (or cmdline "")
+                                      (org-babel-process-file-name in-file)
+                                      (org-babel-process-file-name out-file)))
+                    ('msosql (format "osql %s -s \"\t\" -i %s -o %s"
+                                     (or cmdline "")
+
+                                     (org-babel-process-file-name in-file)
+                                     (org-babel-process-file-name out-file)))
+                    ('teradata (format "~/.emacs.d/bteq_org.sh %s %s < %s > %s"
+				    (if colnames-p "" "-N")
+                                    (or cmdline "")
+				    (org-babel-process-file-name in-file)
+				    (org-babel-process-file-name out-file)))
+
+                    ('mysql (format "mysql %s %s %s < %s > %s"
+				    (dbstring-mysql dbhost dbuser dbpassword database)
+				    (if colnames-p "" "-N")
+                                    (or cmdline "")
+				    (org-babel-process-file-name in-file)
+				    (org-babel-process-file-name out-file)))
+		    ('postgresql (format
+				  "psql -A -P footer=off -F \"\t\"  -f %s -o %s %s"
+				  (org-babel-process-file-name in-
+
+                                                               file)
+				  (org-babel-process-file-name out-file)
+				  (or cmdline "")))
+                    (t (error "No support for the %s SQL engine" engine)))))
+    (with-temp-file in-file
+      (insert
+       (case (intern engine)
+	 ('dbi "/format partbox\n")
+	 (t ""))
+       (org-babel-expand-body:sql body params)
+       (case (intern engine)
+         ('teradata "\n")
+         (t ""))))
+    (message command)
+    (org-babel-eval command "")
+    (org-babel-result-cond result-params
+      (with-temp-buffer
+	  (progn (insert-file-contents-literally out-file) (buffer-string)))
+      (with-temp-buffer
+	(cond
+	  ((or (eq (intern engine) 'mysql)
+               (eq (intern engine) 'teradata)
+	       (eq (intern engine) 'dbi)
+	       (eq (intern engine) 'postgresql))
+	   ;; Add header row delimiter after column-names header in first line
+	   (cond
+	    (colnames-p
+	     (with-temp-buffer
+	       (insert-file-contents out-file)
+	       (goto-char (point-min))
+	       (forward-line 1)
+	       (insert "-\n")
+	       (setq header-delim "-")
+	       (write-file out-file)))))
+	  (t
+	   ;; Need to figure out the delimiter for the header row
+	   (with-temp-buffer
+	     (insert-file-contents out-file)
+	     (goto-char (point-min))
+	     (when (re-search-forward "^\\(-+\\)[^-]" nil t)
+	       (setq header-delim (match-string-no-properties 1)))
+	     (goto-char (point-max))
+	     (forward-char -1)
+	     (while (looking-at "\n")
+	       (delete-char 1)
+	       (goto-char (point-max))
+	       (forward-char -1))
+	     (write-file out-file))))
+	(org-table-import out-file '(16))
+	(org-babel-reassemble-table
+
+
+	 (mapcar (lambda (x)
+		   (if (string= (car x) header-delim)
+		       'hline
+		     x))
+		 (org-table-to-lisp))
+	 (org-babel-pick-name (cdr (assoc :colname-names params))
+			      (cdr (assoc :colnames params)))
+	 (org-babel-pick-name (cdr (assoc :rowname-names params))
+			      (cdr (assoc :rownames params))))))))
+
+          ))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -637,13 +757,22 @@ $1->    %s\n" orig formula form0 form))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (global-set-key (kbd "C-c c")           'compile)
-(global-set-key (kbd "C-=")           'text-scale-increase)
-(global-set-key (kbd "C--")           'text-scale-decrease)
-
+(global-set-key (kbd "C-=")             'text-scale-increase)
+(global-set-key (kbd "C--")             'text-scale-decrease)
 (global-set-key (kbd "C-c f i")         'file-info)
 (global-set-key (kbd "C-c s l")         'sql-start-local-mysql)
 (global-set-key (kbd "C-c s m")         'sql-start-mysql)
 (global-set-key (kbd "C-c s t")         'sql-start-teradata)
+(global-set-key (kbd "C-c s l")         'teradata-send-latest-results-to-excel)
+(global-set-key (kbd "C-c s r")         'teradata-send-region-to-excel)
+(global-set-key (kbd "C-c s d")         'teradata-format-as-date)
+(global-set-key (kbd "C-c s c")         'teradata-format-as-currency)
+(global-set-key (kbd "C-c s n")         'teradata-format-as-number)
+(global-set-key (kbd "C-c s p")         'teradata-format-as-percent)
+(global-set-key (kbd "C-c s i")         'helm-sql-info)
+(global-set-key (kbd "C-c s s")         'sql-sort-column)
+(global-set-key (kbd "C-c s v")         'sql-column-calc)
+
 (global-set-key (kbd "C-c t i")         'iawriter)
 (global-set-key (kbd "C-c t w")         'wombat)
 (global-set-key (kbd "C-c w f")         'flip-windows)
@@ -652,14 +781,14 @@ $1->    %s\n" orig formula form0 form))
 (global-set-key (kbd "C-c h i")         'helm-imenu)
 (global-set-key (kbd "C-c w r")         'rotate-windows)
 (global-set-key (kbd "<C-return>")      'open-next-line)
-(global-set-key (kbd "<M-return>")    'open-previous-line)
-(global-set-key (kbd "M-RET")    'open-previous-line)
-(global-set-key "%"		                  'match-paren)               
+(global-set-key (kbd "<M-return>")      'open-previous-line)
+(global-set-key (kbd "M-RET")           'open-previous-line)
+(global-set-key "%"		        'match-paren)               
 (global-set-key [142607065]             'ns-do-hide-others)         
 (global-set-key (kbd "<C-s-268632070>") 'mac-toggle-max-window)
-(global-set-key (kbd "C-^") 'scroll-up-line)
-(global-set-key (kbd "M-^") 'scroll-down-line)
-                
+(global-set-key (kbd "C-^")             'scroll-up-line)
+(global-set-key (kbd "M-^")             'scroll-down-line)
+;(windmove-default-keybindings)                
 
 (put 'downcase-region 'disabled nil)
 
@@ -687,6 +816,11 @@ $1->    %s\n" orig formula form0 form))
 (setq helm-idle-delay 0.1)
 (setq helm-input-idle-delay 0.1)
 (setq helm-locate-command (concat "~/.dotfiles/locate-with-mdfind" " %s %s"))
+
+(add-to-list 'load-path "~/.emacs.d/sql-info")
+(require 'helm-sql-info)
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -732,8 +866,8 @@ $1->    %s\n" orig formula form0 form))
 ;; ))
 
 (require 'whitespace)
-(setq whitespace-style '(face lines-tail))
-(global-whitespace-mode t)
+;(setq whitespace-style '(face lines-tail))
+;(global-whitespace-mode t)
 
 
 ;; Go to first character indented
@@ -783,3 +917,9 @@ point reaches the beginning or end of the buffer, stop there."
                 'sacha/smarter-move-beginning-of-line)
 
 
+
+(server-start)
+
+
+
+(put 'narrow-to-region 'disabled nil)

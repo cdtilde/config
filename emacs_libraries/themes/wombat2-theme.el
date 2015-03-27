@@ -45,7 +45,8 @@ are included.")
 (let ((class '((class color) (min-colors 89))))
   (custom-theme-set-faces
    'wombat2
-   `(default ((,class (:background "#242424" :foreground "#f6f3e8"))))
+;;   `(default ((,class (:background "#242424" :foreground "#f6f3e8"))))
+   `(default ((,class (:background "#000000" :foreground "#f6f3e8"))))
    `(cursor ((,class (:background "DarkOrange1"))))
    `(fringe ((,class (:background "#242424"))))
    `(highlight ((,class (:background "#454545" :foreground "#ffffff"
@@ -59,7 +60,7 @@ are included.")
    `(show-paren-match-face ((t (:background ,blue1))))
    `(show-paren-mismatch-face ((t (:background ,red1))))   
    `(mode-line
-     ((t (:foreground ,"#f6f3e8" :background ,"#444444"
+     ((t (:foreground ,"#f6f3e8" :background ,"#4073b6"  ;; #444444
                       :box nil))))
    `(mode-line-buffer-id ((t (:foreground ,"#f6f3e8"))))
    `(mode-line-inactive

@@ -29,24 +29,14 @@
 
 (require 'sql)
 
-(defun sql-old-start-session (script product)
-  "Connect to a database, open a SQL window and split horizontally.
-   ARG is the shell script that will be executed to create the SQL session."
+(defun make-new-sql-buffer ()
+  (interactive)
   (setq mybuffername (concat "~/Documents/SQL History/"
 			     (format-time-string "%Y-%m-%d - %H-%M-%S")
 			     ".sql"))
   (find-file-other-window mybuffername)
-  (sql-set-product product)
-  (cond ((string= product "db2")
-	 (setq sql-db2-program script)
-	 (sql-db2))
-	((string= product "sqlite")
-	 (setq sql-sqlite-program script)
-	 (sql-sqlite))
-	((string= product "mysql")
-	 (setq sql-mysql-program script)
-	 (sql-mysql))))
-
+  (setq sql-buffer "*SQL*"))
+  
 
 (defun sql-start-session (script product)
   "Connect to a database, open a SQL window and split horizontally.
@@ -61,47 +51,60 @@
 	((string= product "mysql")
 	 (setq sql-mysql-program script)
 	 (sql-mysql)))
+  (switch-to-buffer "*SQL*")
+  (toggle-truncate-lines 1)
   (if (delq nil (mapcar (lambda (arg)
            (cond ((string= (buffer-local-value 'major-mode (get-buffer arg)) "sql-mode")
                   t)))
          (buffer-list)))
       (setq sql-buffer "*SQL*")
-    (switch-to-buffer "*SQL*")
-                    (toggle-truncate-lines 1)
-      (progn
-        (setq mybuffername (concat "~/Documents/SQL History/"
-			     (format-time-string "%Y-%m-%d - %H-%M-%S")
-			     ".sql"))
-        (find-file-other-window mybuffername))))
-
-  ;;(sql-set-sqli-buffer))
-  
+    (make-new-sql-buffer)))
 
 
-
- ;; (if (delq nil (mapcar (lambda (arg)
- ;;           (cond ((string= (buffer-local-value 'major-mode (get-buffer arg)) "sql-mode")
- ;;                  t)))
- ;;         (buffer-list)))
- ;;     (setq sql-buffer "*SQL*")
- ;;     ((setq mybuffername (concat "~/Documents/SQL History/"
- ;;        		     (format-time-string "%Y-%m-%d - %H-%M-%S")
- ;;        		     ".sql"))
- ;;      (find-file-other-window mybuffername)))
-
-         
-
-         
-;;           (message "%s %s" (buffer-name arg) (buffer-local-value 'major-mode (get-buffer arg)))) (buffer-list))
-
-;; (mapcar (lambda (arg)
-;;           (message "%s %s" (buffer-name arg) (buffer-local-value 'major-mode (get-buffer arg)))) (buffer-list))
+    
+      ;; (progn
+      ;;   (setq mybuffername (concat "~/Documents/SQL History/"
+      ;;   		     (format-time-string "%Y-%m-%d - %H-%M-%S")
+      ;;   		     ".sql"))
+      ;;   (find-file-other-window mybuffername)
+      ;;   (setq sql-buffer "*SQL*"))))
 
 
-;; (loop for buffer in (buffer-list)
-;;         do ( message "%s %s" (buffer-name buffer) (buffer-local-value 'major-mode (get-buffer buffer))))
 
 
+
+
+
+(defun mark-current-statement (arg)
+  (interactive "p")
+  (message "Arg = %d" arg)
+  (let ((case-fold-search t)
+        (beg (point-min))
+        (end (point-max))
+        (found nil))
+    (end-of-line)
+    (while (and (not found) (search-backward-regexp "SELECT\\|UPDATE\\|DELETE\\|INSERT"  nil t 1))
+      (if (and (not (nth 8 (syntax-ppss)))
+               (not (nth 3 (syntax-ppss))))
+          (setq found t)))
+    (if found (setq beg (point)))
+    (goto-char beg)    
+    (setq found nil)
+    (while (and (not found) (search-forward-regexp ";"  nil t 1))
+      (if (and (not (nth 8 (syntax-ppss)))
+               (not (nth 3 (syntax-ppss))))
+          (setq found t)))
+    (if found (setq end (point)))
+    (push-mark beg)
+    (if (eq arg 1)
+        (setq mark-active t))
+    ))
+
+
+
+
+
+    
 
 
 
@@ -123,94 +126,13 @@
     (sql-start-session "/usr/bin/sqlite3" "sqlite"))
 
 
-
-(defun sql-sort-column-old (&optional reverse-sort)
-  "With point inside a column (between two | delimiters), sort the column using sort-columns"
-  (interactive "P")
-  (setq mycolumn (current-column))
-  (save-excursion 
-    (search-backward "|" nil)
-    (setq column-start (current-column))
-    (forward-char)
-    (search-forward "|" nil)
-    (setq column-end (current-column))
-    (search-forward "BTEQ --" nil)
-    (forward-line -3)
-    (move-to-column column-end)
-    (setq end (point))
-    (search-backward-regexp "^$" nil)
-    (forward-line 2)
-    (move-to-column column-start)
-    (setq beg (point))
-    (sort-columns reverse-sort beg end))
-  (move-to-column mycolumn))
-
-
-(defun sql-sort-column (&optional reverse-sort)
-  "With point inside a column (between two | delimiters), sort the column using sort-columns"
-  (interactive "P")
-  (setq mycolumn (current-column))
-  (save-excursion 
-    (setq pos (mark-current-column))
-    (sort-columns reverse-sort (car pos) (cadr pos)))
-    (move-to-column mycolumn))
-
 (defun make-number (n)
       "Turn a string into a number, being tolerant of commas and even other 
-       'junk'.
-    When I started programming, my numeric input routines translated l 
-    (lowercase ell) into 'one', as many users had learnt their
-      keyboarding on manual typewriters which typically lacked 
-      a separate key for the digit 1. Am I old, or what?"
+       'junk'."
     (while (string-match "[^-0-9.]" n)
       (setq n (replace-match "" nil nil n)))
       (string-to-number n))
 
-(defun sql-column-calc ()
-       "Add all the lines in the region-rectangle and put the result in the 
-        kill ring."
-       (interactive)
-       (setq pos (mark-current-column))
-       (let ((sum 0) (max most-negative-fixnum) (min most-positive-fixnum) (count 0))
-         
-         (mapc (lambda (line)
-                 (let ((number (make-number line)))
-                       (setq sum (+ sum number))
-                       (if (> number max)
-                           (setq max number))
-                       (if (< number min)
-                           (setq min number))
-                       (setq count (+ count 1))))               
-               (extract-rectangle (car pos) (cadr pos)))
-         (kill-new (number-to-string sum))
-         (message "Sum: %s, Min: %s, Max: %s, Avg: %s, Count: %s" sum min max (/ sum count) count)))
-
-    
-(defun mark-current-column ()
-  (interactive)
-  (save-excursion 
-  ; Find the left boundary of the column I'm in
-  (search-backward "|" nil)
-  (forward-char)
-  (setq column-start (current-column))
-  ; Find the right boundary of the column
-  (search-forward "|" nil)
-  (backward-char)
-  (setq column-end (current-column))
-  ; Find the bottom of the table
-  (search-forward "BTEQ --" nil)
-  (forward-line -3)
-  (move-to-column column-end)
-  (setq end (point))
-  ; Find the top of the column (1 line below the header)
-  (search-backward-regexp "^$" nil)
-  (forward-line 2)
-  (move-to-column column-start)
-  (setq beg (point))
-  (setq pos (list beg end))
-  (list beg end)))
-  
-    
 
 
 
@@ -242,6 +164,15 @@
 (interactive)
   (wrap-text "" " (format '--ZZZ,ZZZ,ZZZ,ZZZ,ZZZ,ZZ9.9%') "))
 
+(defun send-latest-results-to-excel ()
+  (interactive)
+  (cond ((string= sql-product "db2")
+         (teradata-send-latest-results-to-excel))
+	((string= sql-product "sqlite")
+         (message "Send latest results to Excel is not supported on sqlite"))
+	((string= sql-product "mysql")
+         (mysql-send-latest-results-to-excel))))
+
 (defun teradata-send-latest-results-to-excel ()
  (interactive)
  (set-buffer "*SQL*")
@@ -251,18 +182,95 @@
   (search-backward " *** Total elapsed time was" nil)
   (forward-line 2)
   (let ((end (point)))
-    (teradata-send-to-excel beg end)
+    (send-to-excel beg end)
 )))
 
-(defun teradata-send-region-to-excel ()
- (interactive)
-    (teradata-send-to-excel (point) (mark)))
 
-(defun teradata-send-to-excel (beg end)
+(defun mysql-send-latest-results-to-excel ()
+ (interactive)
+ (set-buffer "*SQL*")
+ (goto-char (point-max))
+ (forward-line -4)
+ (end-of-line)
+ (let ((beg (point))
+       (buf (current-buffer)))
+   (search-backward-regexp "^+-" nil t 2)
+   (forward-line)
+   (let ((end (point)))
+     (with-temp-buffer
+       (rename-buffer "*sql temp*" t)
+       (insert-buffer-substring buf beg end)
+       (goto-char (point-min))
+       (forward-line)
+       (kill-line)
+       (kill-line)
+       (send-to-excel (point-min) (point-max))))))
+
+
+
+(defun teradata-send-latest-results-to-data-mode ()
+ (interactive)
+ (set-buffer "*SQL*")
+ (goto-char (point-max))
+ (forward-line -2)
+ (let ((beg (point)))
+  (search-backward " *** Total elapsed time was" nil)
+  (forward-line 2)
+  (let ((end (point)))
+    (send-to-new-buffer beg end)
+    )))
+
+(defun teradata-send-latest-results-to-org-mode ()
+ (interactive)
+ (set-buffer "*SQL*")
+ (goto-char (point-max))
+ (forward-line -2)
+ (let ((beg (point)))
+  (search-backward " *** Total elapsed time was" nil)
+  (forward-line 2)
+  (let ((end (point)))
+    (send-to-new-org-buffer beg end)
+    )))
+
+(defun send-to-new-buffer (beg end)
+  (interactive "r")
+  (let ((mybuf (current-buffer)))
+    (message "Buf %s beg %s %s %s " mybuf beg end (current-buffer))
+    (setq newbuf (generate-new-buffer "Data Buffer"))
+    (switch-to-buffer newbuf nil t)
+    (insert-buffer-substring mybuf beg end)
+    (data-mode)
+    ))
+ 
+
+(defun send-to-new-org-buffer (beg end)
+  (interactive "r")
+  (let ((mybuf (current-buffer)))
+    (message "Buf %s beg %s %s %s " mybuf beg end (current-buffer))
+    (setq newbuf (generate-new-buffer "results.org"))
+    (switch-to-buffer newbuf nil t)
+    (insert-buffer-substring mybuf beg end)
+    (beginning-of-buffer)
+    (while (search-forward "|" nil t)
+      (replace-match "	" nil nil)))
+    (org-mode)
+    (org-table-convert-region (buffer-end -1) (buffer-end 1) '(16))
+    (beginning-of-buffer)
+    (org-table-insert-hline))
+
+(defun send-current-statement ()
+  (interactive)
+  (mark-current-statement 1)
+  (sql-send-region (mark) (point)))
+
+
+(defun send-region-to-excel ()
+ (interactive)
+    (send-to-excel (point) (mark)))
+
+(defun send-to-excel (beg end)
 " the results from *SQL* and import to Excel"
  (interactive)
- (message "Beginning = %s, end = %s" beg end)
- (set-buffer "*SQL*")
  (let ((x (make-temp-file "foo")))
    (write-region beg end x)
    (let ((command (concat "osascript -e \"set falias to (POSIX file \\\"" x "\\\")\"" 
@@ -287,7 +295,11 @@
 (define-key sql-mode-map "\C-c\C-m" 'teradata-format-as-currency)
 (define-key sql-mode-map "\C-c\C-n" 'teradata-format-as-number)
 (define-key sql-mode-map "\C-c\C-e" 'teradata-send-latest-results-to-excel)
-(define-key sql-mode-map "\C-c\C-g" 'teradata-send-region-to-excel)
+(define-key sql-mode-map "\C-c\C-g" 'send-region-to-excel)
+(define-key sql-mode-map "\C-c\C-o" 'teradata-send-latest-results-to-org-mode)
+(define-key sql-mode-map "\C-\M-h" 'mark-current-statement)
+(define-key sql-mode-map "\C-c\C-c" 'send-current-statement)
+
 
 
 (provide 'sql-tools)

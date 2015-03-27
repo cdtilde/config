@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# Go refresh the bundles
+cd bundle
+
+# First, try to clone all of the plugins (this will pull down any plugins not installed on this platform)
+# This will fail if the plugin is already installed
+git clone https://github.com/tpope/vim-pathogen
+git clone https://github.com/kien/ctrlp.vim
+git clone https://github.com/scrooloose/nerdtree
+git clone https://github.com/scrooloose/nerdcommenter
+git clone https://github.com/majutsushi/tagbar
+#git clone https://github.com/bling/vim-airline
+git clone https://github.com/Lokaltog/vim-easymotion
+git clone https://github.com/altercation/vim-colors-solarized
+git clone https://github.com/oplatek/Conque-Shell
+git clone https://github.com/sickill/vim-monokai
+git clone https://github.com/jpo/vim-railscasts-theme
+git clone https://github.com/tomasr/molokai
+git clone https://github.com/Shougo/unite.vim
+git clone https://github.com/rking/ag.vim
+git clone https://github.com/jgdavey/tslime.vim
+git clone https://github.com/bling/vim-airline
+git clone https://github.com/christoomey/vim-tmux-navigator
+# Then, refresh all of the plugins
+# and update help tags
+rm ~/.vim/update_helptags.vim
+
+ls |
+while read x
+do
+  echo "Pulling $x"
+  cd $x
+  git pull origin master
+  echo "helptags ~/.vim/bundle/$x/doc" >> ~/.vim/update_helptags.vim
+  cd ..
+done
+
+
+# Move some files around
+cd ~/.vim
+cp bundle/vim-pathogen/autoload/pathogen.vim autoload
+
+# Finally update helptags
+#vim -es -S update_helptags.vim

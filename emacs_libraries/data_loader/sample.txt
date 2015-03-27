@@ -1,0 +1,117 @@
+| Code | Name                                       | Channel |
+| WI   | U-Swirl & Rocky Mountain Chocolate Factory | MC      |
+| USWI | U-Swirl & Rocky Mountain Chocolate Factory | VI      |
+| KGSM | Kings Supermarket                          | MC      |
+| KGSM | Kings Supermarket                          | VI      |
+| SCOB | Scooby's Red Hots                          | MC      |
+| SCOB | Scooby's Red Hots                          | VI      |
+| BLUE | Blue Iguana                                | MC      |
+| BLUE | Blue Iguana                                | VI      |
+| UFRA | U Frame It Factoria                        | MC      |
+| UFRA | U Frame It Factoria                        | VI      |
+| ICCF | Ice Cream Chef                             | MC      |
+| ICCF | Ice Cream Chef                             | VI      |
+| MLSS | Miami Leather Supplies                     | MC      |
+| MLSS | Miami Leather Supplies                     | VI      |
+| GOIN | Goin Postal                                | MC      |
+| GOIN | Goin Postal                                | VI      |
+| CTMS | Centerville Music Shop                     | MC      |
+| CTMS | Centerville Music Shop                     | VI      |
+| ROBE | Roberta's Natural Foods                    | MC      |
+| ROBE | Roberta's Natural Foods                    | VI      |
+| FBRC | Fabrics ETC.2                              | MC      |
+| FBRC | Fabrics ETC.2                              | VI      |
+| ALPH | Alpha 1 Photo Studio                       | MC      |
+| ALPH | Alpha 1 Photo Studio                       | VI      |
+| STVT | Steventon's                                | MC      |
+| STVT | Steventon's                                | VI      |
+| SBPC | Scrumbscious Burger & Pie Company          | MC      |
+| SBPC | Scrumbscious Burger & Pie Company          | VI      |
+| DENN | Dennys Restaurant                          | MC      |
+| DENN | Dennys Restaurant                          | VI      |
+| PZZA | Pizza Da Vinci                             | MC      |
+| PZZA | Pizza Da Vinci                             | VI      |
+| VSLR | Vouge Shoe & Luggage Repair                | MC      |
+| VSLR | Vouge Shoe & Luggage Repair                | VI      |
+| SHOP | The Cross Eyed Owl Gift Shop               | MC      |
+| SHOP | The Cross Eyed Owl Gift Shop               | VI      |
+| KJGM | KJ's Gymnastics                            | MC      |
+| KJGM | KJ's Gymnastics                            | VI      |
+| BVHL | Beverly Hills Salon                        | MC      |
+| BVHL | Beverly Hills Salon                        | VI      |
+| TUCK | Tucker's                                   | MC      |
+| TUCK | Tucker's                                   | VI      |
+| ARIS | Arissa Couture                             | MC      |
+| ARIS | Arissa Couture                             | VI      |
+| TOPZ | T.O. Pizza Shop                            | MC      |
+| TOPZ | T.O. Pizza Shop                            | VI      |
+| JERS | Jersey Mike's                              | MC      |
+| JERS | Jersey Mike's                              | VI      |
+| CHMG | Champion Grocery                           | MC      |
+| CHMG | Champion Grocery                           | VI      |
+| 180F | 1-800 Flowers                              | MC      |
+| 180F | 1-800 Flowers                              | VI      |
+| ARAA | ARAMARK                                    | MC      |
+| ARAA | ARAMARK                                    | VI      |
+| BPHG | BPHG                                       | MC      |
+| BPHG | BPHG                                       | VI      |
+| BRKG | BURGER KING                                | MC      |
+| BRKG | BURGER KING                                | VI      |
+| CHEY | CHERYL & CO                                | MC      |
+| CHEY | CHERYL & CO                                | VI      |
+| CHST | CHICAGO STEAK COMPANY                      | MC      |
+| CHST | CHICAGO STEAK COMPANY                      | VI      |
+| CL9L | CLOUD 9 LIVING                             | MC      |
+| CL9L | CLOUD 9 LIVING                             | VI      |
+| ERLM | Early Moments                              | MC      |
+| ERLM | Early Moments                              | VI      |
+| FTDC | FTD.COM                                    | MC      |
+| FTDC | FTD.COM                                    | VI      |
+| HOPH | HOOKED ON PHONICS                          | MC      |
+| HOPH | HOOKED ON PHONICS                          | VI      |
+| ISMA | SAYULITA INC                               | MC      |
+| ISMA | SAYULITA INC                               | VI      |
+| PBBK | PACKBACK                                   | MC      |
+| PBBK | PACKBACK                                   | VI      |
+| PBST | PUBLIC STORAGE                             | MC      |
+| PBST | PUBLIC STORAGE                             | VI      |
+| PBXP | PAINTBALL EXPLOSION                        | MC      |
+| PBXP | PAINTBALL EXPLOSION                        | VI      |
+| PCRT | 800PackRat                                 | MC      |
+| PCRT | 800PackRat                                 | VI      |
+| PPCK | POPEYE'S                                   | MC      |
+| PPCK | POPEYE'S                                   | VI      |
+| PVLF | PAVELIFE                                   | MC      |
+| PVLF | PAVELIFE                                   | VI      |
+| SCBG | SCOREBIG.COM                               | MC      |
+| SCBG | SCOREBIG.COM                               | VI      |
+| SHNY | Shoneys                                    | MC      |
+| SHNY | Shoneys                                    | VI      |
+| TPCF | THE POPCORN FACTORY                        | VI      |
+| TPCP | THE PICTURE PEOPLE                         | MC      |
+| TPCP | THE PICTURE PEOPLE                         | VI      |
+| WTTC | WeTakeTheCake                              | MC      |
+| WTTC | WeTakeTheCake                              | VI      |
+| CBAP | Crispy Basil Artisan Pizza                 | MC      |
+| CBAP | Crispy Basil Artisan Pizza                 | VI      |
+| MILA | La Milagrosa Market                        | MC      |
+| MILA | La Milagrosa Market                        | VI      |
+| CREP | La Crepe  Bistro                           | MC      |
+| CREP | La Crepe  Bistro                           | VI      |
+| SUNM | Sunmist Restaurant                         | MC      |
+| SUNM | Sunmist Restaurant                         | VI      |
+| SPRE | Seaside Palace Resturant                   | MC      |
+| SPRE | Seaside Palace Resturant                   | VI      |
+| CASA | Casa Real                                  | MC      |
+| CASA | Casa Real                                  | VI      |
+| UFIT | U-Frame-It                                 | MC      |
+| UFIT | U-Frame-It                                 | VI      |
+| ROOT | The Rootbeer Store                         | MC      |
+| ROOT | The Rootbeer Store                         | VI      |
+| SUPE | Superior Seconds                           | MC      |
+| SUPE | Superior Seconds                           | VI      |
+| VEGA | Vegan Aroma Organic Cafe                   | MC      |
+| VEGA | Vegan Aroma Organic Cafe                   | VI      |
+| APPZ | Appetizer Pizzeria                         | MC      |
+| APPZ | Appetizer Pizzeria                         | VI      |
+                

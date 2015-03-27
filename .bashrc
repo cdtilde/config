@@ -10,3 +10,6 @@ export CLASSPATH=~/terajdbc4.jar:~/tdgssconfig.jar
 export ALTERNATE_EDITOR=""
 export EDITOR=e
 #alias e='emacsclient -a=\"\" $*'
+export M2_HOME=/usr/local/apache-maven/apache-maven-3.2.3
+export M2=$M2_HOME/bin
+export PATH=$M2:$PATH

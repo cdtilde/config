@@ -1,0 +1,391 @@
+(defun eztest (beg end colnum regexp)
+  (interactive "r\nnColumn number: \nsRegular expression: ")
+  (save-excursion 
+    (goto-char beg)
+    (beginning-of-line)
+    (let ((moreLines 1))
+      (while (and moreLines (search-forward "|" nil t colnum))
+        (setq start-pos (point))
+        (search-forward "|")
+        (backward-char)
+        (setq end-pos (point))
+        (setq mytext (buffer-substring start-pos end-pos))
+        (if (string-match-p regexp mytext)
+              (message "Match = %s" mytext))
+        (setq moreLines (= 0 (forward-line 1)))
+        ))))
+
+(defun testit ()
+  (interactive)
+  (setq list '())
+  (let ((startpos 0) (mystring "$1 > $2 && $40 < 34"))
+    (while (string-match "$[0-9]*" mystring startpos)
+      (push (cons (match-string 0 mystring)  nil) list)
+      (message (match-string 0 mystring))
+      (message "List = %s" list)
+      (setq startpos (match-end 0))))
+  
+  (mapcar (lambda (element) (message "key = %s, value = %s" (car element) (cdr element))) list)
+  )
+
+
+
+(defun add-marker-column (beg end)
+  (interactive "r")
+  (let ((more-lines t))
+    (exchange-point-and-mark)
+    (while more-lines
+      (beginning-of-line)
+      (insert "| ")
+      (setq more-lines (= 0 (forward-line 1)))
+      (if (> (point) end) (setq more-lines nil)))))
+
+
+
+
+
+
+;; TODO: Deal with keeping the header (optionally)
+;; (defun mark-lines-by-calculation-old (calculation)
+;;   (interactive "sFilter: ")
+;;   (setq matched-lines 0)
+;;   (save-excursion
+;;     ;; If the filter supplied does not include column references
+;;     ;; like $1, determine the column number we are in based on the current
+;;     ;; location of point and update the calculation 
+;;     (if (not (string-match "$[0-9]*" calculation))
+;;         (progn (setq start-pos (point))
+;;                (beginning-of-line)
+;;                (setq colnum (count-matches "|" (point) start-pos nil))
+;;                (setq calculation (concat "$" (number-to-string colnum)  " " calculation))))
+
+;;     ;; Now parse the calculation (after potentially updating it with the
+;;     ;; current column number) and make a list of the variables
+;;     ;; Each variable is a numeric column reference, starting with $1    
+;;     (let ((variable-list '()))
+;;       (let ((start-pos 0))
+;;         (while (string-match "$\\([0-9]*\\)" calculation start-pos)
+;;           (push (string-to-number (match-string 1 calculation)) variable-list)
+;;           (setq start-pos (match-end 0))))
+;;       ;; Now iterate through all lines below current point
+;;       ;; Parse the line into values
+;;       ;; Use the values to substitute for $x parameters in the calculation
+;;       ;; Apply the calculation and determine if the like should stay or go
+;;       (let ((more-lines t))
+;;         (while (and more-lines (setq values (split-string
+;;                                              (buffer-substring-no-properties
+;;                                               (line-beginning-position)
+;;                                               (line-end-position)) "|" t)))
+;;           ;; Shift values down by 1 so the position starts with 1
+;;           ;; instead of 0 to match up with natural human counting
+;;           ;; used when writing the formula
+;;           (setq values (cons "" values))
+;;           (setq line-calculation calculation)
+;;           ;; Substitute variable names with values in the local line-calculation formula
+;;           (mapc (lambda (arg)
+;;                   (if (nth  arg values)
+;;                       (setq line-calculation 
+;;                             (replace-regexp-in-string 
+;;                              (concat "$" (number-to-string arg)) (nth arg values)
+;;                              line-calculation))                    
+;;                     (setq line-calculation nil)))
+;;                 variable-list)
+;;           ;; Determine if the line satisfies the filter
+;;           ;; if so, delete the line
+;;           (if (string= "1" (calc-eval line-calculation))
+;;               (progn
+;;                 (setq matched-lines (1+ matched-lines))
+;;                 (mark-line-or-region (line-beginning-position) (line-end-position))))
+;;               ;; (progn
+;;               ;;   (beginning-of-line)
+;;               ;;   (forward-char)
+;;               ;;   (insert "*")
+;;               ;;   (delete-char 1)))
+;;                 ;;(kill-line)
+;;                 ;;(kill-line)))          
+;;           (setq more-lines (= 0 (forward-line -1)))))))
+
+;  (message "Matched %s lines" matched-lines))
+
+(defun log-error (message file pos)
+  (save-excursion
+    (switch-to-buffer-other-window "*data-mode results*")
+    (compilation-mode)
+    (read-only-mode 0)
+    (insert (format "\n%s:%s:1: %s" file pos message))
+    (read-only-mode 1)))
+
+
+;; TODO: Deal with keeping the header (optionally)
+(defun mark-lines-by-calculation (beg end calculation)
+  (interactive "r\nsFilter: ")
+  ;;(kill-buffer "*data-mode results*")
+  (if (not (use-region-p))
+      (mark-whole-buffer))
+  (setq matched-lines 0)
+  (save-excursion
+    ;; If the filter supplied does not include column references
+    ;; like $1, determine the column number we are in based on the current
+    ;; location of point and update the calculation 
+    (if (not (string-match "$[0-9]*" calculation))
+        (progn (setq start-pos (point))
+               (beginning-of-line)
+               (setq colnum (count-matches "|" (point) start-pos nil))
+               (setq calculation (concat "$" (number-to-string colnum)  " " calculation))))
+
+    ;; Now parse the calculation (after potentially updating it with the
+    ;; current column number) and make a list of the variables
+    ;; Each variable is a numeric column reference, starting with $1    
+    (let ((variable-list '()))
+      (let ((start-pos 0))
+        (while (string-match "$\\([0-9]*\\)" calculation start-pos)
+          (push (string-to-number (match-string 1 calculation)) variable-list)
+          (setq start-pos (match-end 0))))
+      ;; Now iterate through all lines below current point
+      ;; Parse the line into values
+      ;; Use the values to substitute for $x parameters in the calculation
+      ;; Apply the calculation and determine if the like should stay or go
+      (setq results (apply-defun-to-region-lines beg end stop-marking-after-errors 'mark-line-by-calculation calculation variable-list))
+      (message "Marked: %s lines, Evaluated: %s, Errors: %s %s"
+               (cadr results)
+               (car results)
+               (car (cddr results))
+               (if (car (cdr (cddr results))) "STOPPED evaluating after reaching error limit" "")))))
+
+
+(setf (concat "$" "2") "x")
+(set (intern (concat "$" "2")) "X")
+
+(type-of (intern (concat "$" "7")))
+
+(progn
+  (let* (( (intern (concat "$" "4")) "X"))
+    (message "$4 = %s" $4))
+  (message "After let, $4 = %s" $4))
+
+
+
+
+
+
+
+
+(defun mark-line-by-calculation (calculation variable-list)
+  (setq values (split-string
+                (buffer-substring-no-properties
+                 (line-beginning-position)
+                 (line-end-position)) "|" t))
+  (setq values (cons "" values))
+  (setq line-calculation calculation)
+  ;; Substitute variable names with values in the local line-calculation formula
+  (mapc (lambda (arg)
+          (if (nth  arg values)
+              (progn  ;; TODO - messing with calc evalv
+                (setq var-1 (nth arg values))
+              (setq line-calculation 
+                    (replace-regexp-in-string 
+                     (concat "$" (number-to-string arg)) (nth arg values)
+                     line-calculation))                    )
+            (setq line-calculation nil)))
+        variable-list)
+  ;; Determine if the line satisfies the filter
+  ;; if so, mark the line with the current highlighting face
+  (let ((calc-eval-error nil))
+    (setq result (calc-eval line-calculation))
+    (cond ((or (listp result) (consp result))
+             (log-error (format "Calculation error in formula %s" line-calculation) buffer-file-name (line-number-at-pos)) -1)           
+          ((string= "1" result)
+           (progn
+             (mark-line-or-region (line-beginning-position) (line-end-position))
+             1))
+          (t 0))))
+
+    ;; (if (string= "1" result)
+    ;;     (progn
+    ;;       (setq matched-lines (1+ matched-lines))
+    ;;       (mark-line-or-region (line-beginning-position) (line-end-position))
+    ;;       1)
+    ;;   0)))
+
+
+
+(defface data-mode-highlight-1
+       '((((class color) (min-colors 88) (background light))
+          :background "gold1" :foreground "black")
+         (((class color) (min-colors 88) (background dark))
+          :background "gold1" :foreground "black")
+         (((class color) (min-colors 16) (background light))
+          :background "gold1" :foreground "black")
+         (((class color) (min-colors 16) (background dark))
+          :background "gold1" :foreground "black")
+         (((class color) (min-colors 8))
+          :background "gold1" :foreground "black")
+         (t :inverse-video t))
+       "Basic face for highlighting."
+       :group 'data-mode-faces)
+
+
+(defface data-mode-highlight-2
+       '((((class color) (min-colors 88) (background light))
+          :background "purple1" :foreground "white")
+         (((class color) (min-colors 88) (background dark))
+          :background "purple1" :foreground "white")
+         (((class color) (min-colors 16) (background light))
+          :background "purple1" :foreground "white")
+         (((class color) (min-colors 16) (background dark))
+          :background "purple1" :foreground "white")
+         (((class color) (min-colors 8))
+          :background "purple1" :foreground "white")
+         (t :inverse-video t))
+       "Basic face for highlighting."
+       :group 'data-mode-faces)
+
+(defface data-mode-highlight-3
+       '((((class color) (min-colors 88) (background light))
+          :background "red" :foreground "white")
+         (((class color) (min-colors 88) (background dark))
+          :background "red" :foreground "white")
+         (((class color) (min-colors 16) (background light))
+          :background "red" :foreground "white")
+         (((class color) (min-colors 16) (background dark))
+          :background "red" :foreground "white")
+         (((class color) (min-colors 8))
+          :background "red" :foreground "white")
+         (t :inverse-video t))
+       "Basic face for highlighting."
+       :group 'data-mode-faces)
+
+
+(setq data-mode-current-highlight-face 'data-mode-highlight-1)
+
+(defvar stop-marking-after-errors 10 "After this many calculation errors, stop doing mark-line-or-region") 
+
+(defun mark-region (beg end)
+  "Apply the currently selected highlighting face to the region"
+  (interactive "r")
+  (overlay-put (make-overlay beg end) 'face  data-mode-current-highlight-face))
+
+
+(defun widen-region-to-whole-lines (beg end)
+  "With an active region, move the point to the beginning of the first line and the mark to the end of the last line. 
+
+With no active region, do the same to the current line."
+  (if (not (use-region-p))
+        (progn
+          (beginning-of-line)
+          (set-mark (point))
+          (end-of-line))
+      (progn
+        (goto-char beg)
+        (beginning-of-line)
+        (set-mark (point))
+        (goto-char end)
+        (end-of-line))))
+    
+(defun mark-line-or-region (beg end)
+  "Apply the currently selected highlighting face to the region, or if there's no active region, the current line. When applying it to the region, widen the selection to include complete lines."
+  (interactive "r")
+  (save-excursion
+    (widen-region-to-whole-lines beg end)    
+    (mark-region (point) (mark))))
+
+
+(defun unmark-line-or-region (beg end)
+  "Remove all data-mode faces from the region, or if there's no active region, the current line. When applying it to the region, widen the selection to include complete lines."  
+  (interactive "r")
+  (save-excursion
+    (widen-region-to-whole-lines beg end)    
+    (unmark-region (mark) (point))))
+
+
+(defun unmark-region (beg end)
+  "Remove all data-mode faces from the region."
+  (interactive "r")
+  (mapcar (lambda (arg)
+            (if (eq (type-of (overlay-get arg 'face)) 'symbol)
+                (setq face-name (symbol-name (overlay-get arg 'face)))
+              (setq face-name (overlay-get arg 'face)))
+            (if (string-match "data-mode" face-name)
+                (delete-overlay arg)))
+          (overlays-in beg end )))
+
+
+    
+
+
+
+;; TODO: Fix
+
+(defun apply-defun-to-region-lines (beg end stop-after myfunc &rest parms)
+  "Apply a function to all lines in the region marked by BEG and END, passing PARMS as the arguments to MYFUNC.
+
+Stop processing after encountering STOP-AFTER number of errors. If nil, do not stop.
+
+If the region is not active, or the region covers part of the line, operate on the entire current.
+
+Returns a list with: 
+- how many lines were iterated over
+- how many were acted on by myfunc
+- and how many produced an error
+- t if evaluation was stopped because we reached STOP-AFTER errors
+
+myfunc is expected to return:
+- 1 if an action was taken on the line
+- 0 if no action was taken on the line
+- -1 if an error occurred
+"
+
+  (save-excursion    
+    (if (not (use-region-p))
+        (setq beg (line-beginning-position)
+              end (line-end-position)))
+    (let ((end-marker (copy-marker end))
+          (num-lines 0)
+          (num-acted-on 0)
+          (num-errors 0))
+      (goto-char beg)
+      (beginning-of-line)
+      (setq next-line-marker (point-marker))
+      (while (and (< num-errors stop-after) (< next-line-marker end-marker))
+        (setq num-lines (1+ num-lines))
+        (goto-char next-line-marker)
+        (setq result (apply myfunc parms))
+        (cond ((= 0  result) nil)
+              ((= 1  result) (setq num-acted-on (1+ num-acted-on)))
+              ((= -1 result) (setq num-errors (1+ num-errors))))
+        (save-excursion
+          (forward-line 1)
+          (set-marker next-line-marker (point))))
+      (set-marker end-marker nil)
+      (set-marker next-line-marker nil)
+      (list num-lines num-acted-on num-errors (>= num-errors stop-after)))))
+
+
+
+(defun set-highlight-color (arg)
+  "Set the current highlighting color for data-mode. The color number selected will be used for highlighting and marking."
+  (setq data-mode-current-highlight-face (concat "data-mode-highlight-" arg)))
+  
+
+
+(define-derived-mode data-mode nil "Data Mode"
+  "Major mode for editing rows/columns of data"
+  (toggle-truncate-lines 1))
+
+(define-key data-mode-map (kbd "m") 'mark-line-or-region)
+(define-key data-mode-map (kbd "u") 'unmark-line-or-region)
+(define-key data-mode-map (kbd "h") 'mark-region)
+(define-key data-mode-map (kbd "e") 'unmark-region)
+
+
+(define-key data-mode-map (kbd "1") (lambda () (interactive) (set-highlight-color "1")))
+(define-key data-mode-map (kbd "2") (lambda () (interactive) (set-highlight-color "2")))
+(define-key data-mode-map (kbd "3") (lambda () (interactive) (set-highlight-color "3")))
+
+
+
+(provide 'data-mode)
+
+
+
+ 

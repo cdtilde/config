@@ -35,7 +35,7 @@
 			     (format-time-string "%Y-%m-%d - %H-%M-%S")
 			     ".sql"))
   (find-file-other-window mybuffername)
-  (setq sql-buffer "*SQL*"))
+  (sql-set-sqli-buffer-generally))
   
 
 (defun sql-start-session (script product)
@@ -58,7 +58,8 @@
                   t)))
          (buffer-list)))
       (setq sql-buffer "*SQL*")
-    (make-new-sql-buffer)))
+    (make-new-sql-buffer))
+  (sql-set-sqli-buffer-generally))
 
 
     
@@ -77,7 +78,6 @@
 
 (defun mark-current-statement (arg)
   (interactive "p")
-  (message "Arg = %d" arg)
   (let ((case-fold-search t)
         (beg (point-min))
         (end (point-max))
@@ -104,6 +104,10 @@
 
 
 
+
+
+
+
     
 
 
@@ -113,9 +117,15 @@
     (sql-start-session "~/.emacs.d/bteq" "db2"))
 
 
-(defun sql-start-mysql ()
+(defun sql-start-mysql-poc ()
     (interactive)
     (sql-start-session "~/.emacs.d/mysql-poc" "mysql"))
+
+(defun sql-start-mysql (arg)
+    (interactive)
+    (message "My arg is %s" arg)
+    (sql-start-session arg "mysql"))
+
 
 (defun sql-start-local-mysql ()
     (interactive)
@@ -263,6 +273,11 @@
   (mark-current-statement 1)
   (sql-send-region (mark) (point)))
 
+(defun send-current-paragraph ()
+  (interactive)
+  (mark-paragraph)
+  (sql-send-region (mark) (point)))
+
 
 (defun send-region-to-excel ()
  (interactive)
@@ -272,11 +287,12 @@
 " the results from *SQL* and import to Excel"
  (interactive)
  (let ((x (make-temp-file "foo")))
+   (message x)
    (write-region beg end x)
    (let ((command (concat "osascript -e \"set falias to (POSIX file \\\"" x "\\\")\"" 
                         " -e \"tell application \\\"Microsoft Excel\\\"\""
                         " -e \"activate\""
-                        " -e \"open text file filename (falias as text) origin Macintosh start row 1 data type delimited field info {{1, text format} } other char \\\"|\\\" with use other\""
+                        " -e \"open text file filename falias origin Macintosh start row 1 data type delimited field info {{1, text format} } other char \\\"|\\\" with use other\""
                         " -e \"end tell\""
                         )))
  (start-process-shell-command "foo-command"  "foo" command))))
@@ -299,6 +315,7 @@
 (define-key sql-mode-map "\C-c\C-o" 'teradata-send-latest-results-to-org-mode)
 (define-key sql-mode-map "\C-\M-h" 'mark-current-statement)
 (define-key sql-mode-map "\C-c\C-c" 'send-current-statement)
+(define-key sql-mode-map "\C-c\C-p" 'send-current-paragraph)
 
 
 

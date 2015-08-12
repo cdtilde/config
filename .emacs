@@ -1,4 +1,3 @@
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;
@@ -19,6 +18,14 @@
 (blink-cursor-mode 0)
 (setq vc-follow-symlinks t)
 (savehist-mode 1)
+(put 'downcase-region 'disabled nil)
+(put 'upcase-region 'disabled nil)
+(put 'narrow-to-region 'disabled nil)
+
+
+;; Load secret information
+(load "~/.emacs.d/.emacs.secret")
+
 
 ;; Backup files
 (setq make-backup-files t)
@@ -27,8 +34,7 @@
 (setq delete-old-versions t)
 
 ;; Mark and parentheses
-;; With region active, type to delete entire region
-(delete-selection-mode 1)
+(delete-selection-mode 1)   ;; With region active, type to delete entire region
 (transient-mark-mode t)
 (column-number-mode 1)
 (show-paren-mode t)
@@ -40,24 +46,23 @@
 
 (if (display-graphic-p)
     (progn
-      (fringe-mode 0)
+      (fringe-mode '(10 . 0))
       (tool-bar-mode 0)
       (scroll-bar-mode 0)
       (menu-bar-mode 1))
   (progn
-    (tool-bar-mode 0)
+    (tool-bar-mode)
     (scroll-bar-mode 0)
     (fringe-mode 0)
     (menu-bar-mode 0)))
 
-
-;(menu-bar-mode 0)
-
-
-
+;; Scrolling
 (setq scroll-step 1)
 (setq scroll-conservatively 9999999)
 
+
+;; Allow scrolling commands C-v, M-v during incremental search
+(setq isearch-allow-scroll t)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -73,6 +78,12 @@
 
 (add-to-list 'load-path "~/.dotfiles/emacs_libraries/data-mode")
 (require 'data-mode)
+
+(add-hook 'sql-mode-hook
+          (lambda ()
+            (modify-syntax-entry ?_  "w" sql-mode-syntax-table)            
+            (toggle-truncate-lines t)))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -99,10 +110,22 @@
 
 (defun wombat()
   (interactive)
-  (load-theme 'wombat2 t))
+  (load-theme 'wombat2 t)
+  (cousine-font))
 
 
 (wombat)
+
+; Turn line numbers on or off in this buffer only
+; If it's turned on, add a one-character fringe
+(defun toggle-line-numbers()
+  (interactive)
+  (if (and (boundp 'linum-mode) linum-mode)
+      (linum-mode 0)
+    (progn
+      (linum-mode 1)
+      (setq linum-format " %d ")))) 
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -111,7 +134,6 @@
 ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 
 (defun rotate-windows ()
   (interactive)
@@ -169,7 +191,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
 ;;
-;;  INDENTATION
+;; INDENTATION
 ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -177,13 +199,13 @@
 
 (setq-default indent-tabs-mode nil)
 (setq tab-width 2)
-;; Convert from tabs to spaces: untabify (reverse with tabify)
+(setq python-indent-offset 4)
 
 (add-hook 'java-mode-hook (lambda ()
                             (setq c-basic-offset 2)))
 
 (add-hook 'sql-mode-hook (lambda ()
-                           (setq c-basic-offset 2)                           ))
+                           (setq c-basic-offset 2)))
 
 
 
@@ -210,6 +232,28 @@
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;
+;;
+;;  PACKAGES
+;;
+;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(setq package-archives
+    '(("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")
+
+
+      ("gnu" . "http://elpa.gnu.org/packages/")
+                         ("Marmalade" . "http://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.milkbox.net/packages/")
+                         ))
+(package-initialize)
+
+
+
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -218,6 +262,23 @@
 ;;
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(autoload 'zap-up-to-char "misc"
+  "Kill up to, but not including ARGth occurrence of CHAR.")
+
+
+(add-hook 'dired-mode-hook (lambda() (
+(defun dired-launch-file ()
+  "In dired, launch the file with the associated OS X application"
+  (interactive)
+  (let* ((file (dired-get-filename nil t)))
+    (message "Opening %s..." file)
+    (call-process "open" nil 0 nil file)
+    (message "Opening %s done" file)))
+
+(define-key dired-mode-map (kbd "z") 'dired-launch-file)
+)))
+
 
 (defun pasteboard-copy()
   "Copy region to OS X system pasteboard."
@@ -262,29 +323,32 @@
                    (if (file-writable-p (buffer-file-name)) "Read/Write" "Read Only")))))))
 
 
-(defun enable-whitespace-marking()
-  (interactive)
-  (require 'whitespace)
-  (setq whitespace-style '(face lines-tail))
-  (global-whitespace-mode t))
 
-
-;;Behave like vi's o command
+;; Behave like vi's o command
 (defun open-next-line (arg)
   "Move to the next line and then opens a line.
     See also `newline-and-indent'."
   (interactive "p")
   (end-of-line)
   (open-line arg)
-  (next-line 1))
-
+  (next-line 1)
+  (when newline-and-indent
+    (indent-according-to-mode)))
 
 (defun open-previous-line (arg)
-      "Open a new line before the current one. 
+  "Open a new line before the current one. 
      See also `newline-and-indent'."
-      (interactive "p")
-      (beginning-of-line)
-      (open-line arg))
+  (interactive "p")
+  (beginning-of-line)
+  (open-line arg)
+  (when newline-and-indent
+    (indent-according-to-mode)))
+
+;; Autoindent open-*-lines
+(defvar newline-and-indent t
+  "Modify the behavior of the open-*-line functions to cause them to autoindent.")
+
+
 
 (defun match-paren (arg)
   "Go to the matching paren if on a paren; otherwise insert %."
@@ -323,6 +387,7 @@
    (emacs-lisp . t)))
 
 (setq org-confirm-babel-evaluate nil)
+
 ;;(require 'ess-site)
 (defun set-exec-path-from-shell-PATH ()
   "Set up Emacs' `exec-path' and PATH environment variable to match that used by the user's shell.
@@ -782,13 +847,13 @@ This function is called by `org-babel-execute-src-block'."
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(global-set-key (kbd "C-c c")           'compile)
-(global-set-key (kbd "C-=")             'text-scale-increase)
-(global-set-key (kbd "C--")             'text-scale-decrease)
+
+;; SQL
 (global-set-key (kbd "C-c f i")         'file-info)
 (global-set-key (kbd "C-c f p")         'copy-current-path-to-system-clipboard)
 (global-set-key (kbd "C-c s l")         'sql-start-local-mysql)
-(global-set-key (kbd "C-c s m")         'sql-start-mysql)
+(global-set-key (kbd "C-c s m")         'sql-start-mysql-poc)
+(global-set-key (kbd "C-c s 1")         (lambda () (interactive) (sql-start-mysql shard-mysql)))
 (global-set-key (kbd "C-c s t")         'sql-start-teradata)
 (global-set-key (kbd "C-c s l")         'send-latest-results-to-excel)
 (global-set-key (kbd "C-c s o")         'teradata-send-latest-results-to-data-mode)
@@ -800,37 +865,43 @@ This function is called by `org-babel-execute-src-block'."
 (global-set-key (kbd "C-c s b")         'make-new-sql-buffer)
 (global-set-key (kbd "C-c s s")         'sql-sort-column)
 (global-set-key (kbd "C-c s v")         'sql-column-calc)
+
+;; Themes, Look and Feel
 (global-set-key (kbd "C-c t i")         'iawriter)
 (global-set-key (kbd "C-c t w")         'wombat)
 (global-set-key (kbd "C-c w f")         'flip-windows)
+(global-set-key (kbd "C-=")             'text-scale-increase)
+(global-set-key (kbd "C--")             'text-scale-decrease)
+
+
+;; Misc
 (global-set-key (kbd "C-c h c")         'cheatsheet-open)
+(global-set-key (kbd "C-c c")           'compile)
+
+;; Helm
 (global-set-key (kbd "C-x f")           'helm-for-files)
 (global-set-key (kbd "C-c h i")         'helm-imenu)
+
+;; Windows
 (global-set-key (kbd "C-c w r")         'rotate-windows)
-(global-set-key (kbd "<C-return>")      'open-next-line)
-(global-set-key (kbd "<M-return>")      'open-previous-line)
-(global-set-key (kbd "M-RET")           'open-previous-line)
-(global-set-key "%"		        'match-paren)               
 (global-set-key [142607065]             'ns-do-hide-others)         
 (global-set-key (kbd "<C-s-268632070>") 'mac-toggle-max-window)
-(global-set-key (kbd "C-^")             'scroll-up-line)
-(global-set-key (kbd "M-^")             'scroll-down-line)
-;(windmove-default-keybindings)                
 
-(put 'downcase-region 'disabled nil)
+;; Text Editing & Movement
+(global-set-key (kbd "C-o")             'open-previous-line) 
+(global-set-key (kbd "M-o")             'open-next-line)
+(global-set-key "%"		        'match-paren)               
+;; (global-set-key (kbd "C-^")             'scroll-up-line)
+;; (global-set-key (kbd "M-^")             'scroll-down-line)
+(global-set-key (kbd "M-g")             'goto-line)
+(global-set-key (kbd "C-c l")           'toggle-line-numbers)
+(global-set-key (kbd "M-z")             'zap-up-to-char)
+(global-set-key (kbd "M-Z")             'zap-to-char)
+(global-set-key (kbd "C-c t w")         'transpose-words)
+(global-set-key (kbd "C-c t s")         'transpose-sentences)
+(global-set-key (kbd "C-c t l")         'transpose-lines)
+(global-set-key (kbd "C-c t p")         'transpose-paragraphs)
 
-
-
-
-(setq package-archives
-    '(("melpa-stable" . "http://melpa-stable.milkbox.net/packages/")))
-
-
-;;       '(("gnu" . "http://elpa.gnu.org/packages/")
-;;                          ("Marmalade" . "http://marmalade-repo.org/packages/")
-;;                          ("melpa" . "http://melpa.milkbox.net/packages/")
-;;                          ))
-(package-initialize)
 
 
 
@@ -844,25 +915,11 @@ This function is called by `org-babel-execute-src-block'."
 
 (require 'helm-config)
 
-(setq helm-idle-delay 0.1)
-(setq helm-input-idle-delay 0.1)
+;;(setq helm-idle-delay 0.1)
+;;(setq helm-input-idle-delay 0.1)
 (setq helm-locate-command (concat "~/.dotfiles/locate-with-mdfind" " %s %s"))
 
 (add-to-list 'load-path "~/.emacs.d/sql-info")
-;(require 'helm-sql-info)
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;
-;;
-;;  AG
-;;
-;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-
 
 (defun imenu-elisp-sections ()
   (setq imenu-prev-index-position-function nil)
@@ -871,88 +928,21 @@ This function is called by `org-babel-execute-src-block'."
 (add-hook 'emacs-lisp-mode-hook 'imenu-elisp-sections)
 
 
-;; (require 'key-chord)
-;; (key-chord-mode 1)
-;; (key-chord-define-global ",," 'dabbrev-expand)
-;; (key-chord-define-global "uu" 'undo)
 
-
-;(add-to-list 'load-path "~/.emacs.d/sql-info")
-;(require 'helm-sql-info)
-
-;(global-set-key (kbd "C-c q") 'helm-sql-info)
-
-;; (add-hook 'dired-mode-hook (lambda() (
-;; (defun dired-launch-file ()
-;;   "In dired, launch the file with the associated OS X application"
-;;   (interactive)
-;;   (let* ((file (dired-get-filename nil t)))
-;;     (message "Opening %s..." file)
-;;     (call-process "open" nil 0 nil file)
-;;     (message "Opening %s done" file)))
-
-
-
-;; (define-key dired-mode-map (kbd "z") 'dired-launch-file)
-;; ))
-
-(require 'whitespace)
-;(setq whitespace-style '(face lines-tail))
-;(global-whitespace-mode t)
-
-
-;; Go to first character indented
-;; When at $ and you hit enter, it opens a line but breaks the indentation of the line below
-;; Get point to stay in the same place when you do C-v and M-v
-;; Jump between points
-
-(load "~/.emacs.d/.emacs.secret")
-
-
-;;  C-x r j + letter to jump to the file
-(mapcar
- (lambda (r)
-   (set-register (car r) (cons 'file (cdr r))))
- '((?e . "~/.emacs")
-   (?l . "~/.bash_profile")))
+;; ;;  C-x r j + letter to jump to the file
+;; (mapcar
+;;  (lambda (r)
+;;    (set-register (car r) (cons 'file (cdr r))))
+;;  '((?e . "~/.emacs")
+;;    (?l . "~/.bash_profile")))
 
 
 
 
 
-;; (defun sacha/smarter-move-beginning-of-line (arg)
-;;   "Move point back to indentation of beginning of line.
-
-;; Move point to the first non-whitespace character on this line.
-;; If point is already there, move to the beginning of the line.
-;; Effectively toggle between the first non-whitespace character and
-;; the beginning of the line.
-
-;; If ARG is not nil or 1, move forward ARG - 1 lines first.  If
-;; point reaches the beginning or end of the buffer, stop there."
-;;   (interactive "^p")
-;;   (setq arg (or arg 1))
-
-;;   ;; Move lines first
-;;   (when (/= arg 1)
-;;     (let ((line-move-visual nil))
-;;       (forward-line (1- arg))))
-
-;;   (let ((orig-point (point)))
-;;     (back-to-indentation)
-;;     (when (= orig-point (point))
-;;       (move-beginning-of-line 1))))
-
-;; ;; remap C-a to `smarter-move-beginning-of-line'
-;; (global-set-key [remap move-beginning-of-line]
-;;                 'sacha/smarter-move-beginning-of-line)
-
-;(require 'server)
-;(unless (server-running-p) (progn (message "Starting my server") (server-start)))
 
 
 
-(put 'narrow-to-region 'disabled nil)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -970,7 +960,10 @@ This function is called by `org-babel-execute-src-block'."
    (quote
     ("e56f1b1c1daec5dbddc50abd00fcd00f6ce4079f4a7f66052cf16d96412a09a9" "6a37be365d1d95fad2f4d185e51928c789ef7a4ccf17e7ca13ad63a8bf5b922f" "3f90e4d43f9bcad473890a0ba7ff62213f8026ce06ae540f39ebc6d1af4d5dd8" default)))
  '(org-use-fast-tag-selection t)
- '(python-indent-offset 4))
+ '(send-mail-function (quote smtpmail-send-it))
+ '(smtpmail-smtp-server "smtp.googlemail.com")
+ '(smtpmail-smtp-service 587))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -979,19 +972,17 @@ This function is called by `org-babel-execute-src-block'."
  )
 (display-time-mode)
 
-(require 'data-mode)
 
-
-(defun all-regexp-matches (regexp string)
-  "Get a list of all regexp matches in a string"
-  (save-match-data
-    (let ((pos 0)
-          matches)
-      (while (and (< pos (length string)) (string-match regexp string pos))
-        (push (match-string 0 string) matches)
-        (message (match-string 0 string))
-        (setq pos (+ 1 (match-end 0))))
-      (reverse matches))))
+;; (defun all-regexp-matches (regexp string)
+;;   "Get a list of all regexp matches in a string"
+;;   (save-match-data
+;;     (let ((pos 0)
+;;           matches)
+;;       (while (and (< pos (length string)) (string-match regexp string pos))
+;;         (push (match-string 0 string) matches)
+;;         (message (match-string 0 string))
+;;         (setq pos (+ 1 (match-end 0))))
+;;       (reverse matches))))
 
 
 ;;;;; Comint Stuff
@@ -1001,37 +992,38 @@ This function is called by `org-babel-execute-src-block'."
                                         ; interpret and use ansi color codes in shell output windows
 (ansi-color-for-comint-mode-on)
 
-                                        ; make completion buffers disappear after 3 seconds.
-(add-hook 'completion-setup-hook
-          (lambda () (run-at-time 3 nil
-                                  (lambda () (delete-windows-on "*Completions*")))))
 
 
 
-;; ORG-MODE STUFF
-
-(add-to-list 'load-path "~/.dotfiles/emacs_libraries/remember-1.9")
-(require 'remember-autoloads)
-(setq org-remember-templates
-      '(("Tasks" ?t "* TODO %?\n  %i\n  %a" "~/organizer.org")                      ;; (2)
-        ("Appointments" ?a "* Appointment: %?\n%^T\n%i\n  %a" "~/organizer.org")))
-(setq remember-annotation-functions '(org-remember-annotation))
-(setq remember-handler-functions '(org-remember-handler))
-(eval-after-load 'remember
-  '(add-hook 'remember-mode-hook 'org-remember-apply-template))
-(global-set-key (kbd "C-c r") 'remember)                                         ;; (3)
-
-(require 'org)
-(add-to-list 'auto-mode-alist '("\\.org$" . org-mode))                           ;; (4)
-(global-set-key (kbd "C-c a") 'org-agenda)                                       ;; (5)
-;;(setq org-todo-keywords '("TODO" "STARTED" "WAITING" "DONE"))                    ;; (6)
-(setq org-agenda-include-diary t)                                                ;; (7)
-   (setq org-agenda-include-all-todo t)        
-
-(setq org-agenda-files (quote ("~/org")))
 
 
-(setq org-todo-keywords
-      '((sequence "TODO(t)" "|" "DONE(d)")
-        (sequence "REPORT(r)" "BUG(b)" "KNOWNCAUSE(k)" "|" "FIXED(f)")
-                     (sequence "|" "CANCELED(c)")))
+;; isearch
+;; When completing searching by pressing enter, move point
+;; to the beginning of the match (instead of at the end of the match
+;; which is the default behavior)
+;; If searching for 1 character only, move the point forward by 1 character
+;; after matching (assuming that the user is trying to match a delimiter, such as ", ', }, ( etc.
+(defun isearch-move-point-to-match-beginning ()
+  (if isearch-forward (backward-char (length isearch-string)))
+  (message "%d" (length isearch-string))
+  (if (= (length isearch-string) 1) (forward-char 1)))
+
+(add-hook 'isearch-mode-end-hook 'isearch-move-point-to-match-beginning)
+
+.
+
+
+
+
+
+
+
+
+
+
+(find-file "~/.dotfiles/emacs-cheatsheets/headline.org")
+
+(setq gnus-select-method '(nnimap "gmail"
+(nnimap-address "imap.gmail.com")
+(nnimap-server-port 993)
+(nnimap-stream ssl)))

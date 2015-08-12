@@ -1,0 +1,23 @@
+                                   
+
+full-screen		            f11
+zoom			            M-f10
+
+isearch-forward-symbol-at-point     M-s .
+highlight-symbol-at-point           M-s h .
+
+open-line-before                    C-o
+open-line-after                     M-o
+
+join with previous line             M-^
+delete-blank-lines                  C-x C-o
+
+delete all space                    M-\
+delete all space but one            M-SPACE
+
+transpose-w,l,s,p                   C-c t w,l,s,p
+
+send mail                           C-x m
+
+repeat last command                 C-x z 
+  z keeps repeating

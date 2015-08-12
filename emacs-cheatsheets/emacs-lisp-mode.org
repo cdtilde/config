@@ -1,10 +1,14 @@
 
+
+
+
+
 ;;; 24.4
-full-screen		f11
-zoom			M-f10
-isearch-forward-symbol-at-point M-s .
-indent-rigidly		C-x TAB
-highlight-symbol-at-point M-s h .
+full-screen		            f11
+zoom			            M-f10
+isearch-forward-symbol-at-point     M-s .
+indent-rigidly		            C-x TAB
+highlight-symbol-at-point           M-s h .
 
 
 desktop-save

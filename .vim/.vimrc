@@ -172,7 +172,6 @@ function! SendStringToConque(arg) "{{{
 endfunction 
 
 "let g:Powerline_symbols = 'fancy'
-#set encoding=utf-8
 "let g:airline_powerline_fonts = 1
 "set laststatus=2
 "set guifont=Droid\ Sans\ Mono\ For\ Powerline:h14
